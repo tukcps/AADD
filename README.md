@@ -1,10 +1,34 @@
 # Affine Arithmetic Decition Diagrams (AADD) 
+This software provides  a C++ library for the creation and manipulation of affine arithmetic decision diagrams (AADD).
+This permits in particular the abstract symbolic interpretation of C++. 
+It can also be used for symbolic simulation of SystemC or SystemC AMS/TLM models which requires in addition installation of the SystemC library.
 
-The AADD package is a C++ library for the creation and 
-manipulation of affine arithmetic decision diagrams (AADD).
-The package is for abstract symbolic interpretation of C++. 
-It can also be added to SystemC or SystemC AMS/TLM.
-This requires an additional SystemC library.
+## Usage
+Using AADD as simple as: 
+
+```
+	#include "aadd.h"
+	doubleS a;  // also with same semantics: AADD a; 
+	boolS b;    // or BDD b; 
+        
+	int main()
+
+  	{
+    	  a = doubleS(0,100); // a takes double value from range [0,100]
+	  ifS(a > 1)          // symbolic cond. and iteration statements
+	    a = a + 2;
+    	  elseS
+	    a = a - 2;
+	  endS;
+	  
+	  b = (a >0)         // b represents possible results and linear constraints as BDD. 
+	  
+	  cout << "a is: " << endl;
+	  cout << a;
+	}
+```
+The result is a decision diagram that represent all possible results, assuming that a is from the range [0,100]: The condition at the root node is (a>1), and the leaf nodes have the ranges [-2,98] and [2,102], depending on the condition. Ranges are represented and computed by affine forms to yield scalability. Note that by considering the condition, these ranges can be further reduced significantly to [-2,-1] and [3,102]. This is done by GLPK that improves accuracy of the affine forms, while maintaining scalability.
+
 
 ## Executive Summary
 For the impatient: 
@@ -59,28 +83,6 @@ Else, send an email to the authors.
 	> make install
 ```
 
-## Usage
-
-Using AADD as simple as: 
-
-```
-	#include "aadd.h"
-	doubleS a;  // also with same semantics: AADD a; 
-        
-	int main()
-
-  	{
-    	  a = doubleS(0,100); // a takes double value from range [0,100]
-	  ifS(a > 1)          // symbolic cond. and iteration statements
-	    a = a + 2;
-    	  elseS
-	    a = a - 2;
-	  endS;
-	  cout << "a is: " << endl;
-	  cout << a;
-	}
-```
-The result is a decision diagram that represent all possible results, assuming that a is from the range [0,100]: The condition at the root node is (a>1), and the leaf nodes have the ranges [-2,98] and [2,102], depending on the condition. Ranges are represented and computed by affine forms to yield scalability. Note that by considering the condition, these ranges can be further reduced significantly to [-2,-1] and [3,102]. This is done by GLPK that improves accuracy of the affine forms, while maintaining scalability.
 
 
 Send feedback to:
