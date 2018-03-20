@@ -1,0 +1,9 @@
+1) Test affine operations +-*/ and the ranges. 
+
+2) Text copy-constructurs of AADD
+
+3) Test that comparison leads to an AADD with
+	- Two nodes
+	- Three nodes
+	- Four nodes
+
