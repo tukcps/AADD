@@ -23,7 +23,7 @@ If it doesn't work, carefully do the following steps:
 
 0. We assume you have a UNIX style system, e.g. OSX or Linux. 
 
-1. Install GLPK e.g. into /usr/local
+1. Install GLPK e.g. into /usr/local. Get GLPK e.g. from https://www.gnu.org/software/glpk/ 
 
 2. Set an environment variable GLPKLIB to this directory 
 ```
