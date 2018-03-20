@@ -29,20 +29,9 @@ Using AADD as simple as:
 The result is a decision diagram that represent all possible results, assuming that a is from the range [0,100]: The condition at the root node is (a>1), and the leaf nodes have the ranges [-2,98] and [2,102], depending on the condition. Ranges are represented and computed by affine forms to yield scalability. Note that by considering the condition, these ranges can be further reduced significantly to [-2,-1] and [3,102]. This is done by GLPK that improves accuracy of the affine forms, while maintaining scalability.
 
 
-## Executive Summary
-For the impatient: 
-```
-	> export GLPKLIB=PathToInstallationDirectory
-	> mkdir build
-	> cmake ..
-	> make 
-	> ctest
-	> make install
-```
+## Installation  
 
-## Installation in details 
-
-If it doesn't work, carefully do the following steps: 
+For installation, do the following steps: 
 
 0. We assume you have a UNIX style system, e.g. OSX or Linux. 
 
@@ -84,7 +73,7 @@ Else, send an email to the authors.
 
 
 
-Send feedback to:
+In case of problems or other feedback contact:
 
 Carna Radojicic  
 Chair of Design of Cyber-Physical Systems  
