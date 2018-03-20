@@ -75,7 +75,7 @@ Else, send an email to the authors.
 
 In case of problems or other feedback contact:
 
-Carna Radojicic  
+Carna Zivkovic  
 Chair of Design of Cyber-Physical Systems  
 TU Kaiserslautern  
 Postfach 3049   
