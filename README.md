@@ -1,4 +1,4 @@
-# BUILD AND INSTALLATION of the AADD package 
+# Affine Arithmetic Decition Diagrams (AADD) 
 
 The AADD package is a C++ library for the creation and 
 manipulation of affine arithmetic decision diagrams (AADD).
@@ -64,17 +64,17 @@ FEEDBACK:
 
 Send feedback to:
 
-Carna Radojicic
-Chair of Design of Cyber-Physical Systems
-University Kaiserslautern
-Postfach 3049 
-67653 Kaiserslautern
-radojicic@cs.uni-kl.de
-https://cps.cs.uni-kl.de/mitarbeiter/carna-radojicic-msc/
+Carna Radojicic  
+Chair of Design of Cyber-Physical Systems  
+TU Kaiserslautern  
+Postfach 3049   
+67653 Kaiserslautern  
+radojicic@cs.uni-kl.de  
+https://cps.cs.uni-kl.de/mitarbeiter/carna-radojicic-msc/  
 
-Christoph Grimm
-Chair of Design of Cyber-Physical Systems
-University Kaiserslautern
-Postfach 3049
-67653 Kaiserslautern
-grimm@cs.uni-kl.de
+Christoph Grimm  
+Chair of Design of Cyber-Physical Systems  
+TU Kaiserslautern  
+Postfach 3049  
+67653 Kaiserslautern  
+grimm@cs.uni-kl.de  
