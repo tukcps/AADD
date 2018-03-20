@@ -59,6 +59,27 @@ Else, send an email to the authors.
 	> make install
 ```
 
+## Usage
+
+Using AADD as simple as: 
+
+```
+	#include "aadd.h"
+	doubleS a;  // also with same semantics: AADD a; 
+        
+	int main()
+
+  	{
+    	  a = doubleS(0,100); // a takes double value from range [0,100]
+	  ifS(a > 1)          // symbolic cond. and iteration statements
+	    a = a + 2;
+    	  elseS
+	    a = a - 2;
+	  endS;
+	  cout << "a is: " << endl;
+	  cout << a;
+	}
+```
 
 FEEDBACK:
 
