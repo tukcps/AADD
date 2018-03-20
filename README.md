@@ -80,8 +80,8 @@ Using AADD as simple as:
 	  cout << a;
 	}
 ```
+The result is a decision diagram that represent all possible results, assuming that a is from the range [0,100]: The condition at the root node is (a>1), and the leaf nodes have the ranges [-2,98] and [2,102], depending on the condition. Ranges are represented and computed by affine forms to yield scalability. Note that by considering the condition, these ranges can be further reduced significantly to [-2,-1] and [3,102]. This is done by GLPK that improves accuracy of the affine forms, while maintaining scalability.
 
-FEEDBACK:
 
 Send feedback to:
 
