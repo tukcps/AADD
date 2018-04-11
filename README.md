@@ -51,7 +51,9 @@ For installation, do the following steps:
 ```
 5. Build it
 ```	
-	> cmake .. 
+        > cmake .. 
+	> make 
+        > make doc
 ```
 In case you want to install the package in another place than 
 the default directory (/usr/local) add installation path to cmake command:
