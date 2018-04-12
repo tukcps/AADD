@@ -1,9 +1,9 @@
 #include "../src/aadd.h"
 
 
-intAS get_sign(intAS x)
+intS get_sign(intS x)
 {
-  intAS r; 
+  intS r; 
   ifS(x == 0)
      r=0; 
   elseS
@@ -20,8 +20,8 @@ intAS get_sign(intAS x)
 
 int main() 
 {
-  intAS input = intAS(-100,100); 
-  intAS out = get_sign(input);
+  intS input = intS(-100,100); 
+  intS out = get_sign(input);
 
   cout << out;
 }
