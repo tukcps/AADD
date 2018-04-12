@@ -9,7 +9,7 @@
  @details The file defines the static class instance that manages conditional stmts and loops. 
  @details Furthermore, we add her other static stuff such error messages etc.
  
- @author Carna Radojicic, Christoph Grimm
+ @author Carna Civcovic (born Radojicic), Christoph Grimm
  
  @copyright@parblock
  Copyright (c) 2017
@@ -43,7 +43,7 @@ AADDMgr::AADDMgr()
     cout << "==============================================" << endl;
     cout << "  AADD lib -- Symbolic execution is enabled."   << endl;
     cout << "     AADD library (c) TU Kaiserslautern,"       << endl;
-    cout << "          C. Radojicic, C. Grimm."              << endl;
+    cout << "          C. Civcovic, C. Grimm."              << endl;
     cout << "============================================="  << endl
     << endl;
     startcputime = std::clock();

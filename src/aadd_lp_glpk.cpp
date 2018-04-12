@@ -263,15 +263,12 @@ opt_sol solve_lp(const AAF& var1, vector<constraint<AAF> > constraints)
             string name="constraint"+to_string(j+1);
             glp_set_row_name(lp,j+1,name.c_str());
             
-            
             if (constraints[j].sign=='-')
             {
-                
                 glp_set_row_bnds(lp, j+1, GLP_UP, 0.0, 0.0); // constraint <= ths
             }
             else
             {
-                
                 glp_set_row_bnds(lp, j+1, GLP_LO, 0.0, 0.0); // constraint >= ths
             }
             
@@ -281,7 +278,6 @@ opt_sol solve_lp(const AAF& var1, vector<constraint<AAF> > constraints)
             id2=con.getIndexes();
             
             pu2=id2;
-            
             
             for (unsigned k=0; k<ltemp+1; k++)
             {
@@ -294,17 +290,12 @@ opt_sol solve_lp(const AAF& var1, vector<constraint<AAF> > constraints)
                 {
                     if (constraints[j].sign=='-')
                     {
-                        ar[ind]=con.getcenter()+con.offset_min;
-                        
+                        ar[ind]=con.getcenter()+con.offset_max;
                     }
                     else
                     {
-                        
-                        ar[ind]=con.getcenter()+con.offset_max;
-                        
+                        ar[ind]=con.getcenter()+con.offset_min;
                     }
-                    
-                    
                 }
                 else
                 {
@@ -312,11 +303,8 @@ opt_sol solve_lp(const AAF& var1, vector<constraint<AAF> > constraints)
                     
                     if (b < l2 and id2[b] == idtemp[k-1])
                     {
-                        
                         ar[ind]=con[b+1];
-                        
                         pu2++;
-                        
                     }
                     else
                     {

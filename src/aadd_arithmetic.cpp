@@ -639,7 +639,13 @@ AADD& AADD::operator/(int cst) const
 AADD& AADD::operator+(const AADD& other) const
 {
     AADD* Temp=new AADD;
-    Temp->root=ApplyBinOp(Plus, getRoot(), other.getRoot());
+  #ifdef JOIN
+    vector<constraint <AAF> > constraints;
+    Temp->root=Join((ApplyBinOp(Plus, getRoot(), other.getRoot())), constraints);
+  #else
+     Temp->root=ApplyBinOp(Plus, getRoot(), other.getRoot());
+  #endif
+
     return (*Temp);
 } // AADD::operator+
 
