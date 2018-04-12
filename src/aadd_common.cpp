@@ -471,9 +471,9 @@ void AADDNode::print(const string& indent, std::ostream & s) const
     {   // node is internal node.
         s << indent << "internal node; cond: "; getCond().print(s); s<<", index: "<<index<<endl;
         s << indent << "---------";
-        getT()->print(indent + "        ", s);
+        getT()->print(indent, s);
         s << indent << " - - - - ";
-        getF()->print(indent + "        ", s);
+        getF()->print(indent, s);
         s << endl;
     }
 }

@@ -181,7 +181,6 @@ BDD& BDD::operator=(const BDD& right)
             BDD cond=(*scopes().conditions.back()); // cond in if(cond) or while(cond)
             
             //  a while loop....
-            
             if (scopes().inWhile())
             {
                 BDD temp((*this));
@@ -351,7 +350,7 @@ BDD::operator bool() const
  @author Christoph Grimm
  @return BDD that has additional levels from merging the two BDD+new one.
  */
-BDD& ITE(const BDD& c, const BDD& t, const BDD& e)
+BDD& BDD::ITE(const BDD& c, const BDD& t, const BDD& e)
 {
     if (c.getRoot()->isLeaf() && (c.getRoot()->getValue() == true))
     {
