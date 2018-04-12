@@ -49,8 +49,6 @@ BDDNode* AADD::Compare(AADDNode* f,
     BDDNode *res;    // result of comparison
     BDDNode *T, *E;  // Leaf nodes
     
-    vector<constraint<AAF> >  consv, consn;
-    
     constraint<AAF>  cons;
     
     AAF cond;

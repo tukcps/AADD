@@ -50,6 +50,12 @@ using namespace std;
 class QPF;
 #endif
 
+
+double minimum(const double, const double);
+double maximum(const double, const double);
+
+
+
 // Affine Arithmetic Form
 class AAF
 {
@@ -139,6 +145,8 @@ static list <AAF*> allAAF;
   double getMin() const;
   unsigned getFirstIndex(void) const;
   unsigned getLastIndex(void) const;
+  unsigned getLast() const {return last;};
+
 
 #ifdef USE_AAF_EXTENSIONS
   // special methods declared in aa_aafspecial.c
@@ -389,9 +397,8 @@ inline unsigned AAF::getLastIndex(void) const
     return indexes[length-1];
   }
   return 0;
-  
-  
 }
+
 /************************************************************
  * Method:        getIndexes
  * Author & Date: Darius Grabowski - 05/2005

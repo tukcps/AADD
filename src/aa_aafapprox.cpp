@@ -35,6 +35,23 @@
 #define EPSILON 1E-20
 #define AAF_MINRAD 1E-10
 
+double minimum(const double val1, const double val2)
+{
+    if (val1<val2)
+        return val1;
+    else
+        return val2;
+}
+
+double maximum(const double val1, const double val2)
+{
+    if (val1>val2)
+        return val1;
+    else
+        return val2;
+}
+
+
 /************************************************************
  * INTERPOLATION INFO
  *
@@ -254,11 +271,10 @@ AAF & AAF::operator *=(const AAF & P)
   for (unsigned i = 0; i < length; i++)
     radius += fabs(deviations[i]);
 #endif
-    
-  offset_min=min_-cvalue+rad();
-  offset_max=max_-cvalue-rad();  
-  
-  return *this;
+
+  offset_min=minimum(min_,getMin())-getMin();
+  offset_max=maximum(max_,getMax())-getMax();
+  return (*this);    
 }
 
 /************************************************************
@@ -456,9 +472,9 @@ AAF AAF::operator * (const AAF & P) const
 #endif
    
         
-    Temp.offset_min=min_-Temp.cvalue+Temp.rad();
-    Temp.offset_max=max_-Temp.cvalue-Temp.rad();
-    
+    Temp.offset_min=minimum(min_, Temp.getMin())-Temp.getMin();
+    Temp.offset_max=maximum(max_, Temp.getMax())-Temp.getMax();
+
     return Temp;
 
 }
@@ -526,7 +542,8 @@ AAF & AAF::operator /= (const AAF & P)
      }
      
      AAF Temp=(*this)*inv(P);
-     
+     Temp.offset_min=Temp.offset_max=0;
+ 
      unsigned ltemp=Temp.length;
      
      unsigned *idtemp=Temp.indexes;
@@ -648,14 +665,13 @@ AAF & AAF::operator /= (const AAF & P)
     Temp.radius += fabs(Temp.deviations[i]);
     #endif
     
-    Temp.offset_min=fb-Temp.cvalue+Temp.rad();
-    Temp.offset_max=fa-Temp.cvalue-Temp.rad();
+    Temp.offset_min=minimum(fb, Temp.getMin())-Temp.getMin();
+    Temp.offset_max=maximum(fa,Temp.getMax())-Temp.getMax();
+
+    (*this)=Temp;
+  }
     
-    *this=Temp;
-     
-    }
-    
-    return *this;
+  return (*this);
     
 }
 
@@ -710,6 +726,7 @@ AAF AAF::operator / (const AAF & P) const
      }
      
      AAF Temp=(*this)*inv(P);
+     Temp.offset_min=Temp.offset_max=0;
      
      unsigned ltemp=Temp.length;
      
@@ -832,13 +849,12 @@ AAF AAF::operator / (const AAF & P) const
     Temp.radius += fabs(Temp.deviations[i]);
     #endif
     
-    Temp.offset_min=fb-Temp.cvalue+Temp.rad();
-    Temp.offset_max=fa-Temp.cvalue-Temp.rad();
-    
+    Temp.offset_min=minimum(fb, Temp.getMin())-Temp.getMin();
+    Temp.offset_max=maximum(fa,Temp.getMax())-Temp.getMax();
+
     return Temp;
      
-    }
-     
+  }
   
 }
 

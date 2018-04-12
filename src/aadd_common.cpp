@@ -291,13 +291,9 @@ AADD& AADD::operator=(const AADD& right)
         
         // now (*this) gets value of Temp
         if (Temp->root->isLeaf())
-        {
             root=new AADDNode(Temp->getRoot()->getValue());
-        }
         else
-        {
             root=new AADDNode(*Temp->getRoot());
-        }
         
         return (*this);
     }

@@ -93,7 +93,8 @@ public:
     vector< AAF*  > path_cond;
     
     vector< BDD* > conditions; // In AADD, the path condition is a BDD
-    vector<AADD* > t;
+    vector<AADD* > t;          // targets of type AADD
+    vector<BDD*>   tbdd;       // targets of type BDD
     
     void ifAADD(const BDD &c);  // pushes pointer to cond c on the stack.
                                 // We now save cond and t parts if any.
@@ -125,8 +126,8 @@ private:
 
 AADDMgr& scopes();
 
-#define ifS(cond)       {scopes().ifAADD(cond);  // note the semicolon at the  end.
-#define elseS           scopes().elseAADD(__LINE__, __FILE__);    // note the semicolon at the end!
+#define ifS(cond)       {scopes().ifAADD(cond); 
+#define elseS           scopes().elseAADD(__LINE__, __FILE__);
 #define endS            scopes().endifAADD(); }
 #define whileS(cond)    while (cond!=false) \
                         {scopes().whileAADD(cond);

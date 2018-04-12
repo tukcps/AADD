@@ -78,8 +78,8 @@ public:
     
     DDNode<ValueT>* getT()            const { return T; };
     DDNode<ValueT>* getF()            const { return F; };
-    void setT(DDNode<ValueT> t)       { T=t; };
-    void setF(DDNode<ValueT> f)       { F=f; };
+    void setT(DDNode<ValueT>* t)       { T=t; };
+    void setF(DDNode<ValueT>* f)       { F=f; };
     
     void print(std::ostream &s = std::cout) const;
     DDNode<ValueT>& copy(const DDNode<ValueT>& source); // Creates a recursive copy of source.
@@ -107,7 +107,7 @@ class DDBase
 public: 
     
     // IO methods
-    void printFile(FILE*, const DDNode<ValT>&) const;
+    int printFile(FILE*, const DDNode<ValT>*) const;
     std::ostream & printConsole(std::ostream &, const DDNode<ValT>&) const;
     friend std::ostream & operator << (std::ostream &, const DDBase<ValT> &);
     void printGraphViz(const string file_name) const;

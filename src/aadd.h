@@ -157,6 +157,7 @@ class AADD: public DDBase<AAF>
     AADDNode* ApplyBinOpC(AADD_AOPC op, AADDNode* f, const AAF& g) const;
     AADDNode* ApplyUnaryOp(AADD_UOP op, AADDNode* f) const;
     AADDNode* BTimesA(BDDNode* f, AADDNode* g) const; 
+    AADDNode* Join(AADDNode* f, vector<constraint<AAF> >) const;
     
     AADDNode* getRoot() const { return (AADDNode*) root; };
 
@@ -220,7 +221,7 @@ std::ostream & operator << (std::ostream & s, const AADD& f);
 // Then, symbolic execution is turned totally off.
 typedef class AADD doubleS;
 typedef class AADD floatS;
-typedef class AADD intAS;
+typedef class AADD intS;
 typedef class AADD realS;
 typedef class BDD  boolS;
 

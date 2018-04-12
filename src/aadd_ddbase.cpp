@@ -114,3 +114,152 @@ void DDBase<AAF>::setRoot(DDNode<AAF>* source)
 }
 
 
+template<>
+int DDBase<AAF>::printFile(FILE* fp, const DDNode<AAF>* node) const
+{
+  int retval;
+    
+  if (node!=NULL)
+  {
+      if (node->isLeaf() )
+      {
+          AAF val=node->getValue();
+          
+          if (val.getlength()==0)
+          {
+              retval=fprintf(fp, "\"%p\" [shape=box] [label = \"%g\"];\n",  (void *) node, val.getcenter());
+              
+              if (retval == EOF)
+              {
+                  cout << "END of FILE!" << endl;
+                  return(1);
+              }
+          }
+          else
+          {
+              retval=fprintf(fp,  "\"%p\" [shape=box] [label = \"%g", (void *) node, val.getcenter());
+              
+              if (retval == EOF)
+              {
+                  cout << "END of FILE!" << endl;
+                  return(1);
+              }
+              
+              for (unsigned i=0; i<val.getlength(); i++)
+              {
+                  
+                  if (val[i+1]>=0)
+                  {
+                      retval=fprintf(fp, "+");
+                      
+                      if (retval == EOF)
+                      {
+                          cout << "END of FILE!" << endl;
+                          return(1);
+                      }
+                  }
+                  
+                  retval=fprintf(fp, "%g*e%u", val[i+1], val.getIndexes()[i]);
+                  
+                  if (retval == EOF)
+                  {
+                      cout << "END of FILE!" << endl;
+                      return(1);
+                  }
+              }
+              
+              if (val.offset_min!=0 or val.offset_max!=0)
+              {
+                  retval=fprintf(fp, "+[%g, %g]", val.offset_min, val.offset_max);
+                  
+              }
+              retval=fprintf(fp,"\"];\n");
+              
+
+          }
+      }
+      else
+      {
+          
+          retval=fprintf(fp, "\"%p\" [label= \"v%lu\"];\n", (void *) node, node->getIndex());
+          
+          if (retval == EOF)
+          {
+              cout << "END of FILE!" << endl;
+              return(1);
+          }
+          
+        /*   AAF cond=node->getCond();
+          
+          retval=fprintf(fp,  " %g", cond.getcenter());
+          
+          if (retval == EOF)
+          {
+              cout << "END of FILE!" << endl;
+              return(1);
+          }
+          
+          for (unsigned i=0; i<cond.getlength(); i++)
+          {
+              
+              if (cond[i+1]>=0)
+              {
+                  retval=fprintf(fp, "+");
+                  
+                  if (retval == EOF)
+                  {
+                      cout << "END of FILE!" << endl;
+                      return(1);
+                  }
+              }
+              
+              retval=fprintf(fp, "%g*e%u", cond[i+1], cond.getIndexes()[i]);
+              
+              if (retval == EOF)
+              {
+                  cout << "END of FILE!" << endl;
+                  return(1);
+              }
+          }
+          
+          if (cond.offset_min!=0 or cond.offset_max!=0)
+          {
+              retval=fprintf(fp, "+[%g, %g]", cond.offset_min, cond.offset_max);
+              
+          }
+          retval=fprintf(fp,"\"];\n"); */
+          
+
+          retval = fprintf(fp,
+                           "\"%p\" -> \"%p\" [style = solid];\n",
+                           (void *) node, (void *) node->getT());
+          
+          if (retval == EOF)
+          {
+              cout << "END of FILE!" << endl;
+              return(1);
+          }
+          
+          retval = fprintf(fp,
+                           "\"%p\" -> \"%p\" [style = dashed];\n",
+                           (void *) node, (void *) node->getF());
+          
+          
+          if (retval == EOF)
+          {
+              cout << "END of FILE!" << endl;
+              return(1);
+          }
+          
+          printFile(fp, node->getT());
+          printFile(fp, node->getF());
+ 
+      }
+  }
+    
+    
+  return 0;
+    
+
+}
+
