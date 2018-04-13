@@ -175,7 +175,7 @@ AADD& AADD::handle_assignment(const AADD& right)
         cout << "Path condition:" << *scopes().conditions.back() << endl;
 #endif
         // and now scopes().t gets value of right
-        if ((this != &right) != false)
+        if ( (this != &right) )
         {
             // collect conditions in if-part
             BDD cond=(*scopes().conditions.back()); // cond in if(cond) or while(cond)
@@ -189,7 +189,7 @@ AADD& AADD::handle_assignment(const AADD& right)
                 root->delete_tree();
                 root = nullptr;
                 root=new AADDNode(*((ITE(cond, right, temp)).getRoot()));
-                
+
                 return (*this);
             }
             
@@ -212,7 +212,6 @@ AADD& AADD::handle_assignment(const AADD& right)
             root = nullptr;
             
             root=new AADDNode(*Temp->getRoot());
-            
         }
         else // assigned to itself
         {
@@ -353,25 +352,24 @@ AADD& AADD::operator=(const AADD& right)
  @author Carna Radojicic, Christoph Grimm
  @return AADD to be assigned
  */
+/*
 AADD& AADD::operator=(double right)
 {
     // get condition as BDD
-/*
-    BDD cond = true;
-    for (auto c: scopes().conditions)
-    {
-        cond = cond and *c;
-    }
-   
-    ITE(cond, *new AADD(right), *this);
 
-    return (*this);
- */
+//    BDD cond = true;
+//    for (auto c: scopes().conditions)
+//    {
+//        cond = cond and *c;
+//    }
+//    ITE(cond, *new AADD(right), *this);
+
+//    return (*this);
     AADD temp(right);
     handle_assignment(right);
     return (*this);
 }
-
+*/
 
 /**
  @brief Assigment operator
@@ -379,25 +377,23 @@ AADD& AADD::operator=(double right)
  @author Carna Radojicic, Christoph Grimm
  @return AADD to be assigned
  */
+/*
 AADD& AADD::operator=(const AAF& right)
 {
-/*
     // does at the moment only handle if statements. 
     // get condition as BDD
-    BDD cond = true;
-    for (auto c: scopes().conditions)
-        cond = cond and *c;
+    // BDD cond = true;
+    // for (auto c: scopes().conditions)
+    //    cond = cond and *c;
 
     // Add condition.     
-    ITE(cond, *new AADD(right), *this);
-
-    return (*this);
- */
+    //ITE(cond, *new AADD(right), *this);
+    //return (*this);
     AADD temp(right);
     handle_assignment(temp);
     return (*this);
 }
-
+*/
 
 /**
  @brief Builds an AADD from ifcase and thencase with condition as conditions.
