@@ -92,14 +92,14 @@ class AADDMgr
 public:
     vector< AAF*  > path_cond;
     
-    vector< BDD* > conditions; // In AADD, the path condition is a BDD
+    vector<BDD* >  conditions; // In AADD, the path condition is a BDD
     vector<AADD* > t;          // targets of type AADD
     vector<BDD*>   tbdd;       // targets of type BDD
     
     void ifAADD(const BDD &c);  // pushes pointer to cond c on the stack.
                                 // We now save cond and t parts if any.
                                 // … in overloaded assignment operators.
-    bool inCond()            { return !conditions.empty(); };
+    bool inCond()               { return !conditions.empty(); };
     bool inIf();
     bool inWhile();
     

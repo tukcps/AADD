@@ -161,9 +161,9 @@ BDD::BDD(BDDNode* from)
 
 /**
  @brief Assigment operator
- @details Assigns AADD to AADD
+ @details Assigns BDD to BDD
  @author Carna Radojicic, Christoph Grimm
- @return AADD to be assigned
+ @return BDD to be assigned
  */
 BDD& BDD::operator=(const BDD& right)
 {
@@ -202,16 +202,15 @@ BDD& BDD::operator=(const BDD& right)
             
             BDD* Temp=new BDD(ITE(cond, right, (*this)));
             
-        
             // push Temp (scopes.t)
             scopes().tbdd.push_back(Temp);
             
             // first free memory of (*this)
             root->delete_tree();
-            root = nullptr;
-
-            root=new BDDNode(*Temp->getRoot());
-            
+            if ( Temp->getRoot()->isShared() )
+                root = Temp->getRoot();
+            else
+                root = new BDDNode( *Temp->getRoot() );
         }
         else // assigned to itself
         {
