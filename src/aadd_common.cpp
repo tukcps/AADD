@@ -155,12 +155,18 @@ AADD::~AADD()
 
 
 /**
+ @brief Implements an assignment to the AADD.
+ @details Handles assignment to an AADD and is used by all overaloaded assignment operators
+ @author Christoph Grimm, Carna Zivkovic
+ @return AADD that was assigned.
+ */
+/**
  @brief Assigment operator
  @details Assigns AADD of right to this AADD
  @author Carna Radojicic, Christoph Grimm
  @return AADD to be assigned
  */
-AADD& AADD::operator=(const AADD& right)
+AADD& AADD::handle_assignment(const AADD& right)
 {
     // If in if-part of conditional statemen, or in while statement.
     if (scopes().inCond() && ((scopes().inIf()) or (scopes().inWhile()) ) )
@@ -169,7 +175,7 @@ AADD& AADD::operator=(const AADD& right)
         cout << "Path condition:" << *scopes().conditions.back() << endl;
 #endif
         // and now scopes().t gets value of right
-        if (this!=&right)
+        if ((this != &right) != false)
         {
             // collect conditions in if-part
             BDD cond=(*scopes().conditions.back()); // cond in if(cond) or while(cond)
@@ -178,7 +184,7 @@ AADD& AADD::operator=(const AADD& right)
             if (scopes().inWhile())
             {
                 AADD temp((*this));
-    
+                
                 // first free memory of (*this)
                 root->delete_tree();
                 root = nullptr;
@@ -189,9 +195,11 @@ AADD& AADD::operator=(const AADD& right)
             
             // else if(cond) statement: executed for false values of previous conditions and cond
             // cond and !cond1 and !cond2 ....
-            for (unsigned i=0; i<scopes().conditions.size(); i++)
+            // for(auto c: scopes().conditions)
+            for (unsigned i=0; i<scopes().conditions.size()-1; i++) // CARNA: -1???? Sure?????
             {
                 cond = (cond and !(*scopes().conditions[i]));
+                // cond = (cond and !(*c) );
             }
             
             AADD* Temp=new AADD(ITE(cond, right, (*this)));
@@ -202,7 +210,7 @@ AADD& AADD::operator=(const AADD& right)
             // first free memory of (*this)
             root->delete_tree();
             root = nullptr;
-        
+            
             root=new AADDNode(*Temp->getRoot());
             
         }
@@ -219,9 +227,11 @@ AADD& AADD::operator=(const AADD& right)
             
             //  else if(cond) statement: executed for false values of previous conditions and cond
             // cond and !cond1 and !cond2 ....
-            for (unsigned i=0; i<scopes().conditions.size()-1; i++)
+            for (auto c: scopes().conditions)
+            // for (unsigned i=0; i<scopes().conditions.size()-1; i++)
             {
-                cond = (cond and !(*scopes().conditions[i]));
+                // cond = (cond and !(*scopes().conditions[i]));
+                cond = (cond and !(*c) );
             }
             
             if (cond==true or cond==false)
@@ -239,13 +249,13 @@ AADD& AADD::operator=(const AADD& right)
         return (*this);
     }
     
-    // for else part of conditional statement. 
+    // for else part of conditional statement.
     if (scopes().inCond() && !scopes().inIf() )
     {
 #ifdef DEBUG_IF
         cout<< "In else-part" << endl;
 #endif
-    
+        
         // collect conditions from if parts
         BDD cond=*scopes().conditions.back();
         
@@ -255,9 +265,11 @@ AADD& AADD::operator=(const AADD& right)
         
         // root=new AADDNode(*Temp.getRoot());
         
-        for (unsigned i=0; i<scopes().conditions.size()-1; i++)
+        for (auto c: scopes().conditions)
+        // for (unsigned i=0; i<scopes().conditions.size()-1; i++)
         {
-            cond=cond or (*scopes().conditions[i]);
+            // cond=cond or (*scopes().conditions[i]);
+            cond = cond or *c;
         }
         
         bool found=false;
@@ -309,7 +321,7 @@ AADD& AADD::operator=(const AADD& right)
         root->delete_tree();
         root = nullptr;
         
-         /*  assign new value (right) to (*this)
+        /*  assign new value (right) to (*this)
          here we recursively create new pointers of root and its children
          this is to avoid sharing nodes between (*this) and right
          otherwise (*this) will point to nothing if
@@ -317,6 +329,20 @@ AADD& AADD::operator=(const AADD& right)
         root=new AADDNode(*right.getRoot());
     }
     // otherwise root stays the same...
+    return (*this);
+}
+
+
+
+/**
+ @brief Assigment operator
+ @details Assigns AADD of right to this AADD
+ @author Carna Radojicic, Christoph Grimm
+ @return AADD to be assigned
+ */
+AADD& AADD::operator=(const AADD& right)
+{
+    handle_assignment(right);
     return (*this);
 }
 
@@ -340,175 +366,10 @@ AADD& AADD::operator=(double right)
     ITE(cond, *new AADD(right), *this);
 
     return (*this);
- */ 
-    // check if in scope of conditional statement
-    if (scopes().inCond() && ((scopes().inIf()) or (scopes().inWhile()) ) )
-    {
-#ifdef DEBUG_IF
-        cout << "In if-part, condition is:" << *scopes().conditions.back() << endl;
-#endif
-        // and now scopes().t gets value of right
-        if (((*this)!=right)!=false)
-        {
-            // collect conditions in if-part
-            
-            BDD cond=(*scopes().conditions.back()); // cond in if(cond) or while(cond)
-            
-            //  a while loop?
-            if (scopes().inWhile())
-            {
-                AADD temp((*this));
-                
-                // first free memory of (*this)
-                root->delete_tree();
-                root = nullptr;
-                
-                root=new AADDNode(*((ITE(cond, right, temp)).getRoot()));
-                
-                return (*this);
-            }
-            
-            //  else if(cond) statement: executed for false values of previous conditions and cond
-            // cond and !cond1 and !cond2 ....
-            for (unsigned i=0; i<scopes().conditions.size()-1; i++)
-            {
-                cond = (cond and !(*scopes().conditions[i]));
-            }
-            
-            AADD* Temp=new AADD(ITE(cond, right, (*this)));
-            
-                    
-            // push Temp (scopes.t)
-            scopes().t.push_back(Temp);
-            
-            // first free memory of (*this)
-            root->delete_tree();
-            root=new AADDNode(*Temp->getRoot());
-            
-        }
-        else // assigned to the same value
-        {
-            // in a while loop...
-            if (scopes().inWhile())
-            {
-                return (*this);
-            }
-            
-            // collect conditions in if-part
-            BDD cond=(*scopes().conditions.back()); // cond in if(cond) or else if(cond)
-            
-            //  else if(cond) statement: executed for false values of previous conditions and cond
-            // cond and !cond1 and !cond2 ....
-            for (unsigned i=0; i<scopes().conditions.size()-1; i++)
-            {
-                cond = (cond and !(*scopes().conditions[i]));
-            }
-            
-            if (cond==true or cond==false)
-            {
-                return (*this);
-            }
-            
-            // Now, (symbolic) condition is uncertain BDD ...
-            // (*this) stays the same and (*this) is pushed in scopes().t
-            
-            AADD* Temp=new AADD(*this);
-            
-            scopes().t.push_back(Temp);
-        }
-        return (*this);
-    }
-    
-    
-    if (scopes().inCond() && !scopes().inIf() )
-    {
-#ifdef DEBUG_IF
-        cout<< "In else-part" << endl;
-#endif
-        
-        // collect conditions from if parts
-        
-        BDD cond=*scopes().conditions.back();
-        
-        // else statement: executed for false values of all conditions
-        // (*this) gets right for !cond1*!cond2*....
-        // and scopes().t for cond1 or cond2 or ...
-        
-        // root=new AADDNode(*Temp.getRoot());
-        
-        for (unsigned i=0; i<scopes().conditions.size()-1; i++)
-        {
-            cond=cond or (*scopes().conditions[i]);
-        }
-        
-        bool found=false;
-        
-        AADD *t, *Temp;
-        
-        
-        // finds assigment in if part in which (*this) appeared
-        
-        for (unsigned i=0; i<scopes().t.size(); i++)
-        {
-            if (((*this)==*scopes().t[i])==true)
-            {
-                t=scopes().t[i];
-                found=true;
-                break;
-            }
-        }
-        
-        if (found) // variable assigned also in if part
-        {
-            Temp=new AADD(ITE(cond, *t, right));
-            
-        }
-        else // otherwise
-        {
-            Temp=new AADD(ITE(cond, (*this), right));
-        }
-        
-        
-        // free memory of (*this)
-        root->delete_tree();
-        root = nullptr;
-        
-        // now (*this) gets value of Temp
-        if (Temp->root->isLeaf())
-        {
-            root=new AADDNode(Temp->getRoot()->getValue());
-        }
-        else
-        {
-            root=new AADDNode(*Temp->getRoot());
-        }
-        
-        return (*this);
-    }
-    
-    
-    // if not in scope of conditional statement....
-    
-    // check if object (*this) is the same value as right
-    // otherwise root stays the same ...
-    if (((*this)!=right)!=false)
-    {
-        // first free memory of (*this)
-        root->delete_tree();
-        root = nullptr;
-        
-        /*  assign new value (right) to (*this)
-         here we recursively create new pointers of root and its children
-         this is to avoid sharing nodes between (*this) and right
-         otherwise (*this) will point to nothing if
-         a destructor for right is called */
-        
-        root=new AADDNode(right);
-    }
-    
-    // otherwise root stays the same...
+ */
+    AADD temp(right);
+    handle_assignment(right);
     return (*this);
-
 }
 
 
@@ -531,177 +392,10 @@ AADD& AADD::operator=(const AAF& right)
     ITE(cond, *new AADD(right), *this);
 
     return (*this);
- */ 
-    // check if in scope of conditional statement
-    if (scopes().inCond() && ((scopes().inIf()) or (scopes().inWhile()) ) )
-    {
-#ifdef DEBUG_IF
-        cout << "In if-part, condition is:" << *scopes().conditions.back() << endl;
-#endif
-        // and now scopes().t gets value of right
-        if (((*this)!=right)!=false)
-        {
-            // collect conditions in if-part
-            
-            BDD cond=(*scopes().conditions.back()); // cond in if(cond) or while(cond)
-            
-            //  a while loop....
-            
-            if (scopes().inWhile())
-            {
-                AADD temp((*this));
-                
-                // first free memory of (*this)
-                root->delete_tree();
-                root = nullptr;
-                
-                root=new AADDNode(*((ITE(cond, right, temp)).getRoot()));
-                
-                return (*this);
-            }
-            
-            //  else if(cond) statement: executed for false values of previous conditions and cond
-            // cond and !cond1 and !cond2 ....
-            for (unsigned i=0; i<scopes().conditions.size()-1; i++)
-            {
-                cond = (cond and !(*scopes().conditions[i]));
-            }
-            
-            AADD* Temp=new AADD(ITE(cond, right, (*this)));
-            
-            
-            // push Temp (scopes.t)
-            scopes().t.push_back(Temp);
-            
-            // first free memory of (*this)
-            root->delete_tree();
-            root = nullptr;
-            
-            root=new AADDNode(*Temp->getRoot());
-            
-        }
-        else // assigned to the same value
-        {
-            // in a while loop...
-            
-            if (scopes().inWhile())
-            {
-                return (*this);
-            }
-            
-            // collect conditions in if-part
-            BDD cond=(*scopes().conditions.back()); // cond in if(cond) or else if(cond)
-            
-            //  else if(cond) statement: executed for false values of previous conditions and cond
-            // cond and !cond1 and !cond2 ....
-            for (unsigned i=0; i<scopes().conditions.size()-1; i++)
-            {
-                cond = (cond and !(*scopes().conditions[i]));
-            }
-            
-            if (cond==true or cond==false)
-            {
-                return (*this);
-            }
-            
-            // Now, (symbolic) condition is uncertain BDD ...
-            // (*this) stays the same and (*this) is pushed in scopes().t
-            
-            AADD* Temp=new AADD(*this);
-            
-            scopes().t.push_back(Temp);
-        }
-        return (*this);
-    }
-
-
-    if (scopes().inCond() && !scopes().inIf() )
-    {
-#ifdef DEBUG_IF
-        cout<< "In else-part" << endl;
-#endif
-        
-        // collect conditions from if parts
-        
-        BDD cond=*scopes().conditions.back();
-        
-        // else statement: executed for false values of all conditions
-        // (*this) gets right for !cond1*!cond2*....
-        // and scopes().t for cond1 or cond2 or ...
-        
-        // root=new AADDNode(*Temp.getRoot());
-        
-        for (unsigned i=0; i<scopes().conditions.size()-1; i++)
-        {
-            cond=cond or (*scopes().conditions[i]);
-        }
-        
-        bool found=false;
-        
-        AADD *t, *Temp;
-        
-        
-        // finds assigment in if part in which (*this) appeared
-        
-        for (unsigned i=0; i<scopes().t.size(); i++)
-        {
-            if (((*this)==*scopes().t[i])==true)
-            {
-                t=scopes().t[i];
-                found=true;
-                break;
-            }
-        }
-        
-        if (found) // variable assigned also in if part
-        {
-            Temp=new AADD(ITE(cond, *t, right));
-        }
-        else // otherwise
-        {
-            Temp=new AADD(ITE(cond, (*this), right));
-        }
-        
-        // free memory of (*this)
-        root->delete_tree();
-        root = nullptr;
-        
-        // now (*this) gets value of Temp
-        if (Temp->root->isLeaf())
-        {
-            root=new AADDNode(Temp->getRoot()->getValue());
-        }
-        else
-        {
-            root=new AADDNode(*Temp->getRoot());
-        }
-        
-        return (*this);
-    }
-    
-    
-    // if not in scope of conditional statement....
-    
-    // check if object (*this) is the same value as right
-    // otherwise root stays the same ...
-    if (((*this)!=right)!=false)
-    {
-        // first free memory of (*this)
-        root->delete_tree();
-        root = nullptr;
-        
-        /*  assign new value (right) to (*this)
-         here we recursively create new pointers of root and its children
-         this is to avoid sharing nodes between (*this) and right
-         otherwise (*this) will point to nothing if
-         a destructor for right is called */
-        
-        root=new AADDNode(right);
-        
-    }
-    
-    // otherwise root stays the same...
-
+ */
+    AADD temp(right);
+    handle_assignment(temp);
+    return (*this);
 }
 
 

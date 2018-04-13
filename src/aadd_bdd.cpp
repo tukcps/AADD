@@ -159,6 +159,8 @@ BDD::BDD(BDDNode* from)
 }
 
 
+
+
 /**
  @brief Assigment operator
  @details Assigns BDD to BDD
@@ -323,22 +325,24 @@ BDD& BDD::operator=(const BDD& right)
          this is to avoid sharing nodes between (*this) and right
          otherwise (*this) will point to nothing if
          a destructor for right is called */
-        root=new BDDNode(*right.getRoot());
+        if (right.getRoot()->isShared())
+            root = right.getRoot();
+        else
+            root=new BDDNode(*right.getRoot());
     }
     // otherwise root stays the same...
     return (*this);
 }
 
+
 // to allow use of BDD in conditional statements
 // this further allows operator == to work in existing simulators (e.g. SystemC)
-
 BDD::operator bool() const
 {
     if ((*this)==true)
     {
         return true;
     }
-    
     return false;
 }
 
