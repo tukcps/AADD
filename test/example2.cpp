@@ -13,7 +13,8 @@ int main()
     b = doubleS(10,12); 
 
     // a is incremented until it reaches 10. 
-    whileS(a < 10)      // startwhile(condition);  while ( condition )
+    // if 10 is reached, no assignment will be made / no stmt. executed. 
+    whileS(a < 10)  
     {
         cout << a << endl;
         a = a + 1;

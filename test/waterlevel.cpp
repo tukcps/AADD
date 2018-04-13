@@ -2,7 +2,7 @@
 #include<assert.h>
 
 //
-// A discrete-time water level monitor in C++. 
+// A simple, discrete-time water level monitor in C++. 
 // - The water level changes with an uncertain rate of 0.8+/-0.2
 // - The rate is changed at level 10 and level 2. 
 //
@@ -31,8 +31,10 @@ int main()
     endS; 
 
     level = level + rate;
+    cout << "level: " << level; 
   }
   cout << "Hashvalue of numLeafs: " << hash << endl;
   cout << "             expected: 7671" << endl;
   // assert (hash == 7671);
 }
+

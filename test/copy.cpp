@@ -16,9 +16,14 @@ int main()
     c = a;      // c must be deleted, a copied to c.
     c = a + b;  // 2 a = 4.
     d = c;      // c still there? ONE still there?
-    
-    AADD e(0);   // NULL still there?
-    AADD f(1);   // ONE still there?
+   
+    BDD bddtest; // BDD constructor.  
+    assert (bddtest == false); 
+    bddtest = true; 
+    assert (bddtest == true); 
+
+    AADD e(0);   // NULL still there? Mixed up with BDD leafs? 
+    AADD f(1);   // ONE still there? 
     
   //  assert(c == 4.0);
     
