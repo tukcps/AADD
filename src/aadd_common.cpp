@@ -27,7 +27,7 @@
  You should have received a copy of the GNU General Public License
  along with AADD package. If not, see <http://www.gnu.org/licenses/>.
  @endparblock
- */
+*/
 
 
 #include <stdio.h>
@@ -153,276 +153,56 @@ AADD::~AADD()
     root=nullptr;
 }
 
-
-/**
- @brief Implements an assignment to the AADD.
- @details Handles assignment to an AADD and is used by all overaloaded assignment operators
- @author Christoph Grimm, Carna Zivkovic
- @return AADD that was assigned.
- */
-/**
- @brief Assigment operator
- @details Assigns AADD of right to this AADD
- @author Carna Radojicic, Christoph Grimm
- @return AADD to be assigned
- */
-AADD& AADD::handle_assignment(const AADD& right)
-{
-    // If in if-part of conditional statemen, or in while statement.
-    if (scopes().inCond() && ((scopes().inIf()) or (scopes().inWhile()) ) )
-    {
-#ifdef DEBUG_IF
-        cout << "Path condition:" << *scopes().conditions.back() << endl;
-#endif
-        // and now scopes().t gets value of right
-        if ( (this != &right) )
-        {
-            // collect conditions in if-part
-            BDD cond=(*scopes().conditions.back()); // cond in if(cond) or while(cond)
-            
-            //  a while loop....
-            if (scopes().inWhile())
-            {
-                AADD temp((*this));
-                
-                // first free memory of (*this)
-                root->delete_tree();
-                root = nullptr;
-                root=new AADDNode(*((ITE(cond, right, temp)).getRoot()));
-
-                return (*this);
-            }
-            
-            // else if(cond) statement: executed for false values of previous conditions and cond
-            // cond and !cond1 and !cond2 ....
-            // for(auto c: scopes().conditions)
-            for (unsigned i=0; i<scopes().conditions.size()-1; i++) // CARNA: -1???? Sure?????
-            {
-                cond = (cond and !(*scopes().conditions[i]));
-                // cond = (cond and !(*c) );
-            }
-            
-            AADD* Temp=new AADD(ITE(cond, right, (*this)));
-            
-            // push Temp (scopes.t)
-            scopes().t.push_back(Temp);
-            
-            // first free memory of (*this)
-            root->delete_tree();
-            root = nullptr;
-            
-            root=new AADDNode(*Temp->getRoot());
-        }
-        else // assigned to itself
-        {
-            // in a while loop... there is no else part.
-            if (scopes().inWhile())
-            {
-                return (*this);
-            }
-            
-            // collect conditions in if-part
-            BDD cond=(*scopes().conditions.back()); // cond in if(cond) or else if(cond)
-            
-            //  else if(cond) statement: executed for false values of previous conditions and cond
-            // cond and !cond1 and !cond2 ....
-            for (auto c: scopes().conditions)
-            // for (unsigned i=0; i<scopes().conditions.size()-1; i++)
-            {
-                // cond = (cond and !(*scopes().conditions[i]));
-                cond = (cond and !(*c) );
-            }
-            
-            if (cond==true or cond==false)
-            {
-                return (*this);
-            }
-            
-            // Now, (symbolic) condition is uncertain BDD ...
-            // (*this) stays the same and (*this) is pushed in scopes().t
-            
-            AADD* Temp=new AADD(*this);
-            
-            scopes().t.push_back(Temp);
-        }
-        return (*this);
-    }
-    
-    // for else part of conditional statement.
-    if (scopes().inCond() && !scopes().inIf() )
-    {
-#ifdef DEBUG_IF
-        cout<< "In else-part" << endl;
-#endif
-        
-        // collect conditions from if parts
-        BDD cond=*scopes().conditions.back();
-        
-        // else statement: executed for false values of all conditions
-        // (*this) gets right for !cond1*!cond2*....
-        // and scopes().t for cond1 or cond2 or ...
-        
-        // root=new AADDNode(*Temp.getRoot());
-        
-        for (auto c: scopes().conditions)
-        // for (unsigned i=0; i<scopes().conditions.size()-1; i++)
-        {
-            // cond=cond or (*scopes().conditions[i]);
-            cond = cond or *c;
-        }
-        
-        bool found=false;
-        
-        AADD *t, *Temp;
-        
-        
-        // finds assigment in if part in which (*this) appeared
-        for (unsigned i=0; i<scopes().t.size(); i++)
-        {
-            if (((*this)==*scopes().t[i])==true)
-            {
-                t=scopes().t[i];
-                found=true;
-                break;
-            }
-        }
-        
-        if (found) // variable assigned also in if part
-        {
-            Temp=new AADD(ITE(cond, *t, right));
-        }
-        else // otherwise
-        {
-            Temp=new AADD(ITE(cond, (*this), right));
-        }
-        
-        // free memory of (*this)
-        root->delete_tree();
-        root = nullptr;
-        
-        // now (*this) gets value of Temp
-        if (Temp->root->isLeaf())
-            root=new AADDNode(Temp->getRoot()->getValue());
-        else
-            root=new AADDNode(*Temp->getRoot());
-        
-        return (*this);
-    }
-    
-    
-    // if not in scope of conditional statement....
-    
-    // check if object (*this) is not assigned to itself
-    // otherwise root stays the same ...
-    if (this!=&right)
-    {
-        // first free memory of (*this)
-        root->delete_tree();
-        root = nullptr;
-        
-        /*  assign new value (right) to (*this)
-         here we recursively create new pointers of root and its children
-         this is to avoid sharing nodes between (*this) and right
-         otherwise (*this) will point to nothing if
-         a destructor for right is called */
-        root=new AADDNode(*right.getRoot());
-    }
-    // otherwise root stays the same...
-    return (*this);
-}
-
-
-
-/**
- @brief Assigment operator
- @details Assigns AADD of right to this AADD
- @author Carna Radojicic, Christoph Grimm
- @return AADD to be assigned
- */
-AADD& AADD::operator=(const AADD& right)
-{
-    handle_assignment(right);
-    return (*this);
-}
-
-
 /**
  @brief Assigment operator
  @details Assigns a real value to AADD
  @author Carna Radojicic, Christoph Grimm
  @return AADD to be assigned
  */
-/*
-AADD& AADD::operator=(double right)
+AADD& AADD::operator=(const AADD& right)
 {
-    // get condition as BDD
-
-//    BDD cond = true;
-//    for (auto c: scopes().conditions)
-//    {
-//        cond = cond and *c;
-//    }
-//    ITE(cond, *new AADD(right), *this);
-
-//    return (*this);
-    AADD temp(right);
-    handle_assignment(right);
+    if (scopes().inCond())  {   // in conditional stmt. 
+        ITE(scopes().blockCondition(), *new AADD(right), *this);
+    } else {                    // not in any conditional statement.
+        if ( this!=&right ) {
+            // first free memory of (*this)
+            root->delete_tree();
+            root = new AADDNode(*right.getRoot());
+        }
+        // otherwise root stays the same...    
+    }
     return (*this);
 }
-*/
 
-/**
- @brief Assigment operator
- @details Assigns an interval represented by AAF to AADD
- @author Carna Radojicic, Christoph Grimm
- @return AADD to be assigned
- */
-/*
-AADD& AADD::operator=(const AAF& right)
-{
-    // does at the moment only handle if statements. 
-    // get condition as BDD
-    // BDD cond = true;
-    // for (auto c: scopes().conditions)
-    //    cond = cond and *c;
 
-    // Add condition.     
-    //ITE(cond, *new AADD(right), *this);
-    //return (*this);
-    AADD temp(right);
-    handle_assignment(temp);
-    return (*this);
-}
-*/
 
 /**
  @brief Builds an AADD from ifcase and thencase with condition as conditions.
  @details ITE function that takes two AADD as if and then arguments and has a BDD as a condition.
+ @details to mix both AADD into one, arithmetic operations are used that do the copying. 
  @author Christoph Grimm, Carna Radojicic
  @return AADD that has additional levels.
  */
 AADD& AADD::ITE(const BDD& c, const AADD& t, const AADD& f)
 {
-    if (c.getRoot()->isLeaf())
-    {
-        if ( c.getRoot()->getValue() == true )
-        {
-            AADD* result=new AADD(t);
-            return *result;
+    // if condition is true or false, we just need to return t or f
+    if (c.getRoot()->isLeaf()) {
+        if ( c.getRoot()->getValue() == true ) {
+            setRoot(new AADDNode(*t.getRoot()));
+            return *this;
         }
-        else
-        {
-            AADD* result=new AADD(f);
-            return *result;
+        else {
+            setRoot(new AADDNode(*f.getRoot()));
+            return *this;
         }
     }
+
+    // otherwise, we need to create a new AADD.
+    // specific form of Shannon expansion is here: aadd = c*t + ic*f. 
     AADD Temp, Temp2;
 
     Temp.setRoot(Temp.BTimesA(c.getRoot(), t.getRoot() ) );
-    BDD ic = !c;
-   
-    Temp2.setRoot(Temp.BTimesA(ic.getRoot(), f.getRoot()) );
-
+    Temp2.setRoot(Temp.BTimesA((!c).getRoot(), f.getRoot()) );
     setRoot(Temp.ApplyBinOp(Plus, Temp.getRoot(), Temp2.getRoot()));
 
     return (*this);
@@ -431,28 +211,22 @@ AADD& AADD::ITE(const BDD& c, const AADD& t, const AADD& f)
 
 AADD& ITE(const BDD& c, const AAF& t, const AAF& f)
 {
-    if (c.getRoot()->isLeaf())
-    {
-        if ( c.getRoot()->getValue() == true )
-        {
+    if (c.getRoot()->isLeaf()) {
+        if ( c.getRoot()->getValue() == true ) {
             AADD* result=new AADD(t);
             return *result;
         }
-        else
-        {
+        else {
             AADD* result=new AADD(f);
             return *result;
         }
     }
     
     AADD Temp, Temp2;
-    AADD* result=new AADD;
+    AADD * result = new AADD; 
     
     Temp.setRoot(Temp.BTimesA(c.getRoot(), new AADDNode(t) ) );
-    BDD ic = !c;
-    
-    Temp2.setRoot(Temp.BTimesA(ic.getRoot(), new AADDNode(f)) );
-    
+    Temp2.setRoot(Temp.BTimesA((!c).getRoot(), new AADDNode(f)) );
     result->setRoot(Temp.ApplyBinOp(Plus, Temp.getRoot(), Temp2.getRoot()));
     
     return (*result);

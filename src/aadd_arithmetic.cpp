@@ -181,7 +181,7 @@ AADDNode* Times(AADDNode* f, AADDNode* g)
         res = new AADDNode(value);
         return(res);
     }
-    return(NULL);
+    return(nullptr);
 }
 
 AADDNode* TimesC(AADDNode* f, const AAF& g)
@@ -194,7 +194,7 @@ AADDNode* TimesC(AADDNode* f, const AAF& g)
         res = new AADDNode(value);
         return(res);
     }
-    return(NULL);
+    return(nullptr);
 }
 
 
@@ -215,7 +215,7 @@ AADDNode* Divide(AADDNode* f, AADDNode* g)
         res = new AADDNode(value);
         return(res);
     }
-    return(NULL);
+    return(nullptr);
 }
 
 AADDNode* DivideC(AADDNode* f, const AAF& g)
@@ -226,7 +226,7 @@ AADDNode* DivideC(AADDNode* f, const AAF& g)
         value = (f->getValue())/g;
         return(new AADDNode(value));
     }
-    return(NULL);
+    return(nullptr);
 }
 
 /**
@@ -242,7 +242,7 @@ AADDNode* Plus(AADDNode* f, AADDNode* g)
         AAF value=f->getValue()+g->getValue();
         return(new AADDNode(value));
     }
-    return(NULL);
+    return(nullptr);
 }
 
 AADDNode* PlusC(AADDNode* f, const AAF& g)
@@ -251,7 +251,7 @@ AADDNode* PlusC(AADDNode* f, const AAF& g)
         AAF value=f->getValue()+g;
         return(new AADDNode(value));
     }
-    return(NULL);
+    return(nullptr);
 }
 
 /**
@@ -365,10 +365,7 @@ AADDNode* AADD::ApplyUnaryOp(AADD_UOP op, AADDNode* f) const
  */
 AADDNode* AADD::ApplyBinOp(AADD_AOP op, AADDNode*f, AADDNode* g) const
 {
-    AADDNode *res,
-	   *fv, *fvn,
-       *gv, *gvn,
-	   *T, *E;
+    AADDNode *res, *fv, *fvn, *gv, *gvn, *T, *E;
     unsigned long ford, gord;
     unsigned long index;
     
@@ -404,23 +401,18 @@ AADDNode* AADD::ApplyBinOp(AADD_AOP op, AADDNode*f, AADDNode* g) const
     }
     
     // Maybe we can reduce?
-    if (T->isLeaf() and E->isLeaf() )
-    {
-        if (T->getValue()==E->getValue())
-        {
+    if (T->isLeaf() and E->isLeaf() ) {
+        if (T->getValue()==E->getValue()) {
             res=T;
         }
-        else
-        {
+        else {
             res=new AADDNode(index,T,E);
         }
     }
-    else if (T==E)
-    {
+    else if (T==E) {
         res=T;
     }
-    else
-    {
+    else {
         res=new AADDNode(index,T,E);
     }
     return res;
@@ -430,14 +422,11 @@ AADDNode* AADD::ApplyBinOp(AADD_AOP op, AADDNode*f, AADDNode* g) const
 
 AADDNode* AADD::ApplyBinOpC(AADD_AOPC op, AADDNode*f, const AAF& cst) const
 {
-    AADDNode *res,
-	   *fv, *fvn,
-	   *T, *E;
-    
+    AADDNode *res, *fv, *fvn, *T, *E;
     
     res = (*op)(f, cst);
     
-    if (res != NULL) return(res);
+    if (res != nullptr) return(res);
     
     unsigned long index = f->getIndex();
     fv=f->getT();
@@ -447,28 +436,23 @@ AADDNode* AADD::ApplyBinOpC(AADD_AOPC op, AADDNode*f, const AAF& cst) const
     if (T == NULL) return(NULL);
     
     E = ApplyBinOpC(op,fvn, cst);
-    if (E == NULL) {
+    if (E == nullptr) {
         delete T;
-        return(NULL);
+        return(nullptr);
     }
     
-    if (T->isLeaf() and E-> isLeaf() )
-    {
-        if (T->getValue()==E->getValue())
-        {
+    if (T->isLeaf() and E-> isLeaf() ) {
+        if (T->getValue()==E->getValue()) {
             res=T;
         }
-        else
-        {
+        else {
             res=new AADDNode(index,T,E);
         }
     }
-    else if (T==E)
-    {
+    else if (T==E) {
         res=T;
     }
-    else
-    {
+    else {
         res=new AADDNode(index,T,E);
     }
     
@@ -484,8 +468,6 @@ AADDNode* AADD::ApplyBinOpC(AADD_AOPC op, AADDNode*f, const AAF& cst) const
  */
 AADDNode* AADD::BTimesA(BDDNode*f, AADDNode* g) const
 {
-    
-
     AADDNode *res;
     BDDNode  *fv, *fvn;
     AADDNode *gv, *gvn, *T, *E;
@@ -514,17 +496,19 @@ AADDNode* AADD::BTimesA(BDDNode*f, AADDNode* g) const
         fv = fvn = f;            // and skip; keep both leaves
     }
     if (gord <= ford) {
-        gv = g->getT();    // Take leaves of other op if index valid
+        gv = g->getT();     // Take leaves of other op if index valid
         gvn = g->getF();
-    } else {                     // skip if invalid.
+    } else {                // skip if invalid.
         gv = gvn = g;
     }
     
     T = BTimesA(fv, gv);    // Call OP on T leaf
-    if (T == nullptr) return(nullptr);
+    if (T == nullptr) {
+        return(nullptr);
+    }
     E = BTimesA(fvn, gvn);  // Call OP on F leaf
     if (E == nullptr) {
-        delete T;
+        // delete T; // why???
         return(nullptr);
     }
     
@@ -733,7 +717,7 @@ AADD& AADD::operator*=(int cst)
     return (*this);
 }
 
-AADD& AADD::operator*=( const AAF& cst)
+AADD& AADD::operator*=(const AAF& cst)
 {
     AADDNode *result = ApplyBinOpC(TimesC, getRoot(), cst);
     delete root;
@@ -812,6 +796,7 @@ AADD& AADD::operator+=(const AAF& cst)
     return (*this);
 }
 
+ 
 AADD& AADD::operator-=(const AADD& other)
 {
     AADDNode *result = ApplyBinOp(Minus, getRoot(), other.getRoot());
@@ -820,6 +805,7 @@ AADD& AADD::operator-=(const AADD& other)
     return (*this);
 } // AADD::operator-=
 
+ 
 AADD& AADD::operator-=(double cst)
 {
     AAF tmp(cst);
@@ -828,6 +814,7 @@ AADD& AADD::operator-=(double cst)
     root=result;
     return (*this);
 }
+ 
 
 AADD& AADD::operator-=(int cst)
 {
@@ -849,12 +836,14 @@ AADD& AADD::operator-=(const AAF& cst)
     
 }
 
+ 
 AADD& operator * (double cst, const AADD& P)
 {
     AADD* Temp=new AADD(P*cst);
     return (*Temp);
 }
 
+ 
 AADD& operator * (int cst, const AADD& P)
 {
     AADD* Temp=new AADD(P*cst);

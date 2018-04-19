@@ -159,180 +159,30 @@ BDD::BDD(BDDNode* from)
 }
 
 
-
-
 /**
  @brief Assigment operator
  @details Assigns BDD to BDD
  @author Carna Radojicic, Christoph Grimm
  @return BDD to be assigned
  */
-BDD& BDD::operator=(const BDD& right)
-{
-    // check if in scope of conditional statement
-    if (scopes().inCond() && ((scopes().inIf()) or (scopes().inWhile()) ) )
-    {
-#ifdef DEBUG_IF
-        cout << "In if-part, condition is:" << *scopes().conditions.back() << endl;
-#endif
-        // and now scopes().tbdd gets value of right
-        if (this!=&right)
-        {
-            // collect conditions in if-part
-            
-            BDD cond=(*scopes().conditions.back()); // cond in if(cond) or while(cond)
-            
-            //  a while loop....
-            if (scopes().inWhile())
-            {
-                BDD temp((*this));
+ BDD& BDD::operator=(const BDD& right)
+ {
+     BDDNode* copy; 
+     if ( right.getRoot()->isShared() ) 
+         copy = right.getRoot(); 
+     else 
+         copy = new BDDNode( *right.getRoot() ); 
 
-                // first free memory of (*this), then create new node. 
-                root->delete_tree();
-                root = nullptr;
-                root=new BDDNode(*((ITE(cond, right, temp)).getRoot()));
-                
-                return (*this);
-            }
-            
-            //  else if(cond) statement: executed for false values of previous conditions and cond
-            // cond and !cond1 and !cond2 ....
-            for (unsigned i=0; i<scopes().conditions.size()-1; i++)
-            {
-                cond = (cond and !(*scopes().conditions[i]));
-            }
-            
-            BDD* Temp=new BDD(ITE(cond, right, (*this)));
-            
-            // push Temp (scopes.t)
-            scopes().tbdd.push_back(Temp);
-            
-            // first free memory of (*this)
-            root->delete_tree();
-            if ( Temp->getRoot()->isShared() )
-                root = Temp->getRoot();
-            else
-                root = new BDDNode( *Temp->getRoot() );
-        }
-        else // assigned to itself
-        {
-            // in a while loop... there is no else part. 
-            if (scopes().inWhile())
-            {
-                return (*this);
-            }
-            
-            // collect conditions in if-part
-            BDD cond=(*scopes().conditions.back()); // cond in if(cond) or else if(cond)
-            
-            //  else if(cond) statement: executed for false values of previous conditions and cond
-            // cond and !cond1 and !cond2 ....
-            for (unsigned i=0; i<scopes().conditions.size()-1; i++)
-            {
-                cond = (cond and !(*scopes().conditions[i]));
-            }
-            
-            if (cond==true or cond==false)
-            {
-                return (*this);
-            }
-            
-            // Now, (symbolic) condition is uncertain BDD ...
-            // (*this) stays the same and (*this) is pushed in scopes().tbdd
-            
-            BDD* Temp=new BDD(*this);
-            
-            scopes().tbdd.push_back(Temp);
-        }
-        
-        return (*this);
-    }
-    
-    
-    if (scopes().inCond() && !scopes().inIf() )
-    {
-#ifdef DEBUG_IF
-        cout<< "In else-part" << endl;
-#endif
-        
-        // collect conditions from if parts
-        
-        BDD cond=*scopes().conditions.back();
-        
-        // else statement: executed for false values of all conditions
-        // (*this) gets right for !cond1*!cond2*....
-        // and scopes().tbdd for cond1 or cond2 or ...
-        
-        // root=new BDDNode(*Temp.getRoot());
-        
-        for (unsigned i=0; i<scopes().conditions.size()-1; i++)
-        {
-            cond=cond or (*scopes().conditions[i]);
-        }
-        
-        bool found=false;
-        
-        BDD *t, *Temp;
-        
-        
-        // finds assigment in if part in which (*this) appeared
-        
-        for (unsigned i=0; i<scopes().tbdd.size(); i++)
-        {
-            if (((*this)==*scopes().tbdd[i])==true)
-            {
-                t=scopes().tbdd[i];
-                found=true;
-                break;
-            }
-        }
-        
-        if (found) // variable assigned also in if part
-        {
-            Temp=new BDD(ITE(cond, *t, right));
-        }
-        else // otherwise
-        {
-            Temp=new BDD(ITE(cond, (*this), right));
-        }
-        
-        // remove root
-        root->delete_tree();
-        root = nullptr;
-        
-        // now (*this) gets value of Temp
-        if (Temp->root->isLeaf())
-            // root=new BDDNode(Temp->getRoot()->getValue());
-            if (Temp->root->getValue() == true) root=ONE(); 
-            else root=ZERO(); 
-        else
-            root=new BDDNode(*Temp->getRoot());
-       
-        return (*this);
-    }
-    
-    // if not in scope of conditional statement....
-    // check if object (*this) is not assigned to itself
-    // otherwise root stays the same ...
-    if (this!=&right)
-    {
-        // first free memory of (*this)
-        root->delete_tree();
-        root = nullptr;
-
-         /*  assign new value (right) to (*this)
-         here we recursively create new pointers of root and its children
-         this is to avoid sharing nodes between (*this) and right
-         otherwise (*this) will point to nothing if
-         a destructor for right is called */
-        if (right.getRoot()->isShared())
-            root = right.getRoot();
-        else
-            root=new BDDNode(*right.getRoot());
-    }
-    // otherwise root stays the same...
-    return (*this);
+     if (scopes().inCond() ){
+         ITE(scopes().blockCondition(), copy, *this);
+     }
+     else {
+         root->delete_tree();
+         root = copy;
+     }
+     return (*this);
 }
+
 
 
 // to allow use of BDD in conditional statements
@@ -357,23 +207,23 @@ BDD& BDD::ITE(const BDD& c, const BDD& t, const BDD& e)
 {
     if (c.getRoot()->isLeaf() && (c.getRoot()->getValue() == true))
     {
-        BDD* result=new BDD(t);
-        return (*result);
-        
+        BDD* result = new BDD(t);
+        this->setRoot(result->getRoot());
+        return (*this);
     }
     else if (c.getRoot()->isLeaf() && (c.getRoot()->getValue() == false))
     {
         BDD* result=new BDD(e);
-        return (*result);
+        this->setRoot(result->getRoot());
+        return (*this);
     }
         
     BDD Temp, Temp2;
-    BDD* result=new BDD;
     Temp.setRoot( Temp.ApplyBinOp(And, c.getRoot(), t.getRoot() ) );
     BDD ic = !c;
     Temp2.setRoot(Temp.ApplyBinOp(And, ic.getRoot(), e.getRoot()) );
-    result->setRoot(Temp.ApplyBinOp(Or, Temp.getRoot(), Temp2.getRoot()));
-    return (*result);
+    setRoot(Temp.ApplyBinOp(Or, Temp.getRoot(), Temp2.getRoot()));
+    return *this;
 }
 
 

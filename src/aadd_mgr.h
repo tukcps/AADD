@@ -4,10 +4,14 @@
  
  @ingroup AADD
  
- @brief Affine Arithmetic Desion Diagrams, manager of conditional statements.
- 
+ @brief Affine Arithmetic Desion Diagrams, manager of conditions and control-flow statements.
  @details The file defines the static class instance that manages conditional stmts and loops.
- @details Furthermore, we add her other static stuff such error messages etc.
+ @details We destinguish paht conditions and block conditions. 
+ @details  Path conditions are all conditions between the program start and the current point of execution
+ that cannot be evaluated to true or false at runtime.
+ @details Block conditions are the conditions that are a condition to the current assignment statements.
+ Block conditions stem from conditional or iteration statements.
+ @details Furthermore, we implement here other static stuff such error messages etc.
  
  @author Carna Radojicic, Christoph Grimm
  
@@ -46,16 +50,17 @@ class BDD;
 class AADD;
 
 /**
- @brief The class condMgr manages the path and block conditions in a program run.
- @detail Path conditions are all not decidable conditions between the program start and the current point of execution.
+ @brief The class condMgr manages the path conditions in a program run.
+ @detail Path conditions are all conditions between the program start and the current point of execution
+ that cannot be evaluated to true or false at runtime. 
  Block conditions are the conditions that are a condition to the current assignment statements.
  Block conditions stem from conditional or iteration statements.
  */
 class condMgrC
 {
 private:
-    vector<AAF*> path_conditions; // Vector of conditions. Index is the index of AADD/BDD.
-    unsigned long last_index;     
+    vector<AAF*> path_conditions; // Vector of path conditions. Index is the index of AADD/BDD.
+    unsigned long last_index; 
 
 public:
     unsigned long addCond(const AAF&c);        // returns index of new condition
@@ -65,10 +70,6 @@ private:
     vector<BDD*> block_conditions;
 
 public:
-    void ifBlock(BDD* c, unsigned line=0);     //@short starts a conditional block, e.g. in if(c) ...
-    void elseBlock(unsigned line=0);           //@short adds else part.
-    void whileBlock(BDD* c, unsigned line=0);  //@short condition of a while iteration.
-    void endBlock();                           //@short ends a conditional block, e.g. end of if stmt. or while.
     void printConditions();
    
     condMgrC();  
@@ -76,7 +77,20 @@ public:
 
 condMgrC& condMgr();
 
-
+/**
+ @brief The class BlockMgr holds static data structures for AADD.
+ @details This manager handles the block conditions. 
+ Block conditions are the conditions that are a condition to the current assignment statements.
+ Block conditions stem from conditional or iteration statements.
+ */
+class blockMgrC
+{
+    vector<BDD* > block_conds; 
+    void thenBlock(BDD* c, unsigned line=0);   //@short starts a conditional block, e.g. in if(c) ...
+    void elseBlock(unsigned line=0);           //@short adds else part.
+    void whileBlock(BDD* c, unsigned line=0);  //@short condition of a while iteration.
+    void endBlock();                           //@short ends a conditional block, e.g. end of if stmt. or while.
+};
 
 
 /**
@@ -90,23 +104,18 @@ condMgrC& condMgr();
 class AADDMgr
 {
 public:
-    vector< AAF*  > path_cond;
     
-    vector<BDD* >  conditions; // In AADD, the path condition is a BDD
-    vector<AADD* > t;          // targets of type AADD
-    vector<BDD*>   tbdd;       // targets of type BDD
+    vector<BDD* >  conditions; // In AADD, the block condition is a conjunction of the BDD of this vector
     
     void ifAADD(const BDD &c);  // pushes pointer to cond c on the stack.
                                 // We now save cond and t parts if any.
                                 // … in overloaded assignment operators.
     bool inCond()               { return !conditions.empty(); };
+    const BDD& blockCondition();
     bool inIf();
     bool inWhile();
-    
-    void elseAADD(const int line, const char* file_name);       // Now, we get the else part e if any.
-                           // Again … assignment operators.
-
-    void endifAADD();       // Pops c from stack. And finally issues the ITE statements ITE(c,t,e).
+    void elseAADD(const int line, const char* file_name);     
+    void endifAADD(const int line, const char* file_name); 
     
     void whileAADD(const BDD& c); // pushes pointer to condition c on the stack.
                              // loop is repeated until c is false.
@@ -120,33 +129,9 @@ public:
 private:
     bool in_if;
     bool in_while;
-    BDD* saved_cond;
     std::clock_t startcputime;
 };
 
 AADDMgr& scopes();
-
-#define ifS(cond)       {scopes().ifAADD(cond); 
-#define elseS           scopes().elseAADD(__LINE__, __FILE__);
-#define endS            scopes().endifAADD(); }
-#define whileS(cond)    while (cond!=false) \
-                        {scopes().whileAADD(cond);
-
-/*
- ScopeMgr scopes;
- Example: 
- with Macros:              After preprocessor: 
-
- ifS(a==b)                 scopes.ifAADD(a==b);  // just a method call
- {                         {                // a block that will be executed, no matter if a==b or not. 
-   lval = expr;              lval = expr; 
- }                         }
- elseS                     scopes.elseAADD(); 
- {                         {                // a block that will be executed, no matter if a==b or not. 
-   lval = expr2;             lval = expr2; 
- } endifS;                 } 
-                           scopes.endifAADD();
- */
-
 
 #endif

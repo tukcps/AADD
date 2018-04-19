@@ -1,6 +1,6 @@
 /**
  
- @file aadd_if.cpp
+ @file aadd_mgr.cpp
  
  @ingroup AADD
  
@@ -48,7 +48,6 @@ AADDMgr::AADDMgr()
     << endl;
     startcputime = std::clock();
     in_if=in_while=false;
-    saved_cond=nullptr;
 }
 
 
@@ -79,19 +78,19 @@ void AADDMgr::printError(const char* error_message, const int line, const char* 
 
 void AADDMgr::ifAADD(const BDD& c)
 {
-    // we need to make a copy of the temporary BDD c.
-    saved_cond = new BDD(c);
-    conditions.push_back(saved_cond);
+    conditions.push_back(new BDD(c) );
     in_if = true;
-    assert ( inIf()  );
 }
 
 
 void AADDMgr::elseAADD(const int line, const char* file_name)
 {
-    if (in_if)
+    if (in_if)   // we negate last condition on stack
     {
-       in_if = false;
+        in_if = false;
+        BDD * last = conditions.back();
+        conditions.pop_back();
+        conditions.push_back( & !(*last) );
     }
     else
     {
@@ -100,20 +99,14 @@ void AADDMgr::elseAADD(const int line, const char* file_name)
 }
 
 
-void AADDMgr::endifAADD()
+void AADDMgr::endifAADD(const int line, const char* file_name)
 {
    if (!conditions.empty())
    {
-     conditions.pop_back();
+       conditions.pop_back();
    }
-   
-   if (conditions.empty()) // we came to the final end of control flow statement
-   {                       // now scopes.t can be cleaned
-     if (!scopes().t.empty())
-     {
-         scopes().t.clear();
-     }
-   }
+   else 
+       printError("Syntax Error: endifS too much");
 }
 
 
@@ -127,11 +120,8 @@ void AADDMgr::whileAADD(const BDD& c)
     }
     
     // we need to make a copy of the temporary BDD c.
-    saved_cond= new BDD(c);
-    conditions.push_back(saved_cond);
-    assert ( !conditions.empty() );
+    conditions.push_back(new BDD(c) );
     in_while = true;
-    assert ( inWhile()  );
 }
 
 
@@ -189,4 +179,17 @@ void condMgrC::printConditions()
     {
        cout << "i: " << i << ": " << *path_conditions[i] << endl; 
     }
-}; 
+};
+
+/*
+ Computes the overall block conditiona as a conjunction of all 
+ single conditions of nested conditional statements.
+ */
+const BDD& AADDMgr::blockCondition()
+{
+    BDD* cond = new BDD(true);
+    if (inCond())
+        for ( auto c: scopes().conditions)
+            cond = new BDD(*cond and *c);
+    return *cond;
+}

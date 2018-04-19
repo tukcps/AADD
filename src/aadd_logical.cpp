@@ -110,7 +110,7 @@ BDDNode* And(BDDNode* f, BDDNode* g)
     if (G->isLeaf() ) return(F);
     if (F == G) return(F); */
     
-    return(NULL);
+    return(nullptr);
 }
 
 
@@ -131,7 +131,7 @@ BDDNode* Xor(BDDNode* f, BDDNode* g)
     if (F == G) return(zero);
     if (F == one && G == zero) return(one);
     if (G == one && F == zero) return(one);
-    return(NULL);
+    return(nullptr);
 }
 
 

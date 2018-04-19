@@ -43,7 +43,7 @@ include  (CTest)
 add_test ( Copy       test/copy)
 add_test ( Comparison test/comparison)
 add_test ( Waterlevel test/waterlevel) 
-set_tests_properties ( Waterlevel PROPERTIES PASS_REGULAR_EXPRESSION "Hashvalue of numLeafs: 7622")
+set_tests_properties ( Waterlevel PROPERTIES PASS_REGULAR_EXPRESSION "Hashvalue of numLeafs: 7671")
 add_test ( example1   test/example1) 
 set_tests_properties ( example1 PROPERTIES PASS_REGULAR_EXPRESSION "a is: 
 AADD is internal node; cond: -1e-10 + e1*1, index: 1
