@@ -40,7 +40,6 @@
 #include "aadd_ddbase.h"
 #include "aadd_bdd.h"
 #include "aadd_lp_glpk.h"
-#include "aadd_macros.h"
 
 /*
  Function calls that take operation as parameter.
@@ -227,5 +226,6 @@ typedef class AADD realS;
 typedef class BDD  boolS;
 
 #include "aadd_mgr.h"
+#include "aadd_macros.h"
 
 #endif /* aadd_h */

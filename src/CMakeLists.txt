@@ -35,7 +35,7 @@ aadd_macros.h
 #
 # header files to be installed in DESTINATION/include
 #
-install (FILES aadd_macros.h aadd_lp_glpk.h aadd_mgr.h aadd_config.h aadd.h aadd_ddbase.h aadd_ddbase_impl.h aadd_off.h aadd_bdd.h aa.h aa_aaf.h aa_exceptions.h aa_interval.h aa_rounding.h DESTINATION include)
+install (FILES aadd_macros.h aadd_lp_glpk.h aadd_mgr.h aadd_config.h aadd.h aadd_ddbase.h aadd_ddbase_impl.h aadd_bdd.h aadd_off.h aa.h aa_aaf.h aa_exceptions.h aa_interval.h aa_rounding.h DESTINATION include)
 
 #
 # libraries to be installed in DESTINATION/lib
