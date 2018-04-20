@@ -94,7 +94,6 @@ class AADD: public DDBase<AAF>
     ~AADD();
     
     // Assigment operators
-    AADD& handle_assignment(const AADD& right);
     AADD& operator=(const AADD& right);
     // AADD& operator=(double right);
     // AADD& operator=(const AAF& right);
