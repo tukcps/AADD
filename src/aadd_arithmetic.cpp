@@ -409,12 +409,27 @@ AADDNode* AADD::ApplyBinOp(AADD_AOP op, AADDNode*f, AADDNode* g) const
             res=new AADDNode(index,T,E);
         }
     }
-    else if (T==E) {
-        res=T;
-    }
-    else {
+    else
+    {
+        if (!T->isLeaf() and !E->isLeaf())
+        {
+            
+            if (T->getT()->isLeaf() and T->getF()->isLeaf() and E->getT()->isLeaf() and E->getF()->isLeaf())
+            {
+                if (T->getIndex()==E->getIndex() )
+                {
+                    if (T->getT()->getValue()==E->getT()->getValue() and T->getF()->getValue()==E->getF()->getValue())
+                    {
+                        return (T);
+                    }
+                }
+            }
+        }
+        
         res=new AADDNode(index,T,E);
+        
     }
+
     return res;
 }
 
@@ -1089,13 +1104,13 @@ AADDNode* AADD::Join(AADDNode* f, vector<constraint<AAF> > constraints) const
             unsigned l1 = val1.getlength();
             unsigned l2 = val2.getlength();
             
-          //  #ifdef AADD_DEBUG
+            #ifdef AADD_DEBUG
             cout << "Can we join?"  << endl;
             cout << "Range of T child " << val1 << " is: [";
             cout << lb1 << " " << ub1 << "]." << endl;
             cout << "Range of F child " << val2 <<  " is: [";
             cout << lb2 << " " << ub2 << "]." << endl;
-          //  #endif
+            #endif
             
             // check for similarity - if ranges overlap and share symbols they are similar
             
