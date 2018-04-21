@@ -50,19 +50,19 @@ SCA_TDF_MODULE(tank)
         elseS g10 = false; 
         endS;
 
-        level.write(wlevel);
+        level = wlevel;
     }
     
     void initialize()
     {
-        wlevel = 8.0;
+        wlevel = 2.0;
     }
     
     void set_attributes()
     {
         set_timestep(sca_core::sca_time(0.1, sc_core::SC_SEC));
-        l5.set_delay(1);
-        g10.set_delay(1);
+        l5.set_delay(20);  // 2.1*2=4 overshoot
+        g10.set_delay(20); // 1.1*2=2.2 overshoot
     }
     
     SCA_CTOR(tank)
@@ -157,7 +157,7 @@ int sc_main(int argc, char* argv[])
     drain drain_("drain_");
     drain_.in(level);
     
-    sc_start(10, SC_SEC);
+    sc_start(120, SC_SEC);
     
     end=clock();
     double time=(double)(end-begin)/CLOCKS_PER_SEC;
