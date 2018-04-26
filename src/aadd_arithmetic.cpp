@@ -409,12 +409,25 @@ AADDNode* AADD::ApplyBinOp(AADD_AOP op, AADDNode*f, AADDNode* g) const
             res=new AADDNode(index,T,E);
         }
     }
-    else if (T==E) 
+    else
     {
-        res = T; 
-    }
-    else {
-        res = new AADDNode(index,T,E);
+        if (!T->isLeaf() and !E->isLeaf())
+        {
+            
+            if (T->getT()->isLeaf() and T->getF()->isLeaf() and E->getT()->isLeaf() and E->getF()->isLeaf())
+            {
+                if (T->getIndex()==E->getIndex() )
+                {
+                    if (T->getT()->getValue()==E->getT()->getValue() and T->getF()->getValue()==E->getF()->getValue())
+                    {
+                        return (T);
+                    }
+                }
+            }
+        }
+        
+        res=new AADDNode(index,T,E);
+        
     }
 
     return res;
@@ -636,7 +649,7 @@ AADD& AADD::operator+(const AADD& other) const
 } // AADD::operator+
 
 
-
+/*
 AADD& AADD::operator+(const AAF& cst) const
 {
     AADD* Temp=new AADD;
@@ -659,6 +672,7 @@ AADD& AADD::operator+(int cst) const
     Temp->root=ApplyBinOpC(PlusC, getRoot(), tmp);
     return (*Temp);
 }
+*/
 
 AADD& AADD::operator-(const AADD& other) const
 {
@@ -758,19 +772,17 @@ AADD& AADD::operator/=(int cst)
 AADD& AADD::operator/=(const AAF& cst)
 {
     AADDNode *result = ApplyBinOpC(DivideC, getRoot(), cst);
-    delete root;
     root=result;
     return (*this);
 }
 
 AADD& AADD::operator+=(const AADD& other)
 {
-    AADDNode *result = ApplyBinOp(Plus, getRoot(), other.getRoot());
-    delete root;
-    root=result;
-    return (*this);
+    AADD result(*ApplyBinOp(Plus, getRoot(), other.getRoot()));
+    return assign(result);
 } // AADD::operator+=
 
+/*
 AADD& AADD::operator+=(double cst)
 {
     AAF tmp(cst);
@@ -797,7 +809,7 @@ AADD& AADD::operator+=(const AAF& cst)
     root=result;
     return (*this);
 }
-
+*/
  
 AADD& AADD::operator-=(const AADD& other)
 {

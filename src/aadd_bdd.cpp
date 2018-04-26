@@ -173,8 +173,8 @@ BDD::BDD(BDDNode* from)
      else 
          copy = new BDDNode( *right.getRoot() ); 
 
-     if (scopes().inCond() ){
-         ITE(scopes().blockCondition(), copy, *this);
+     if (bCond().inCond() ){
+         ITE(bCond().blockCondition(), copy, *this);
      }
      else {
          root->delete_tree();

@@ -73,10 +73,11 @@ public:
 
 
 /**
- @brief AADD class implements a decision diagram that takes AAF as leaf nodes and AAF as conditions.
+ @brief The AADD class implements a decision diagram that takes AAF as leaf nodes and AAF as conditions.
+ @details The AADD class uses a tree of AADDNode objects to set up a decision diagram that has AAF objects as leafs. 
+The AADD class mostly handles the integration in C++ semantics and memory management. 
  @authors Carna Radojicic, Christoph Grimm
  */
-
 class AADD: public DDBase<AAF>
 {
   public:
@@ -94,9 +95,8 @@ class AADD: public DDBase<AAF>
     ~AADD();
     
     // Assigment operators
+    AADD& assign(const AADD& right);
     AADD& operator=(const AADD& right);
-    // AADD& operator=(double right);
-    // AADD& operator=(const AAF& right);
     
     // Relational operators    
     BDD& operator<=(const AADD&) const;
@@ -116,11 +116,13 @@ class AADD: public DDBase<AAF>
     AADD& operator+=(const AADD&);
     AADD& operator-(const AADD&) const;
     AADD& operator-=(const AADD&);
+
+// folloing will be removed: 
+// Is handled by C++ constructor of AADD from double, AAF, int anyhow. 
     AADD& operator*(double)const;
     AADD& operator*=(double);
     AADD& operator/(double)const;
     AADD& operator/=(double);
-    AADD& operator+(double) const;
     AADD& operator+=(double);
     AADD& operator-(double) const;
     AADD& operator-=(double);
@@ -128,7 +130,6 @@ class AADD: public DDBase<AAF>
     AADD& operator*=(int);
     AADD& operator/(int)const;
     AADD& operator/=(int);
-    AADD& operator+(int) const;
     AADD& operator+=(int);
     AADD& operator-(int) const;
     AADD& operator-=(int);
@@ -136,12 +137,13 @@ class AADD: public DDBase<AAF>
     AADD& operator*=(const AAF&);
     AADD& operator/(const AAF&)const;
     AADD& operator/=(const AAF&);
-    AADD& operator+(const AAF&) const;
     AADD& operator+=(const AAF&);
     AADD& operator-(const AAF&) const;
     AADD& operator-=(const AAF&);
+
     AADD& operator%(int)const;
-    
+ 
+   
     // Unary operations
     friend AADD& inv(const AADD&);
     friend AADD& abs(const AADD&);
@@ -178,7 +180,7 @@ class AADD: public DDBase<AAF>
     // Recursive functions for Arithmetic operators
     AADDNode* Modulo(AADDNode*, int) const;
     
-    // Method that computes bounds of leafs of AAF
+    // Method that computes tight bounds of leafs of AAF by setting up an LP problem. Calls GLPK for solving it. 
     opt_sol FindBounds(AADDNode*,  vector<constraint<AAF> >) const;
 };
 

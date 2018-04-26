@@ -4,9 +4,9 @@
  
  @ingroup AADD
  
- @brief Affine Arithmetic Desion Diagrams, manager of conditional statements.
+ @brief Affine Arithmetic Desion Diagrams, manager of path and block conditions.
  
- @details The file defines the static class instance that manages conditional stmts and loops. 
+ @details The file defines the static class instance that manages conditions in AADD, BDD, and conditional statements and loops. 
  @details Furthermore, we add her other static stuff such error messages etc.
  
  @author Carna Zivkovic (born Radojicic), Christoph Grimm
@@ -38,7 +38,7 @@
 #include "aadd.h"
 
 
-AADDMgr::AADDMgr()
+blockMgrC::blockMgrC()
 {
     cout << "==============================================" << endl;
     cout << "  AADD lib -- Symbolic execution is enabled."   << endl;
@@ -47,11 +47,10 @@ AADDMgr::AADDMgr()
     cout << "============================================="  << endl
     << endl;
     startcputime = std::clock();
-    in_if=in_while=false;
 }
 
 
-AADDMgr::~AADDMgr()
+blockMgrC::~blockMgrC()
 {
     double cpu_duration = (std::clock() - startcputime) / (double)CLOCKS_PER_SEC;
     cout << endl;
@@ -61,7 +60,7 @@ AADDMgr::~AADDMgr()
 }
 
 
-void AADDMgr::printError(const char* error_message, const int line, const char* file_name) const
+void blockMgrC::printError(string error_message, const int line, string file_name) const
 {
    if (line>0)
    {
@@ -76,18 +75,17 @@ void AADDMgr::printError(const char* error_message, const int line, const char* 
 }
 
 
-void AADDMgr::ifAADD(const BDD& c)
+void blockMgrC::thenBlock(const BDD& c)
 {
+    in_if = true; 
     conditions.push_back(new BDD(c) );
-    in_if = true;
 }
 
 
-void AADDMgr::elseAADD(const int line, const char* file_name)
+void blockMgrC::elseBlock(const unsigned line, const string& file_name)
 {
     if (in_if)   // we negate last condition on stack
     {
-        in_if = false;
         BDD * last = conditions.back();
         conditions.pop_back();
         conditions.push_back( & !(*last) );
@@ -99,7 +97,7 @@ void AADDMgr::elseAADD(const int line, const char* file_name)
 }
 
 
-void AADDMgr::endifAADD(const int line, const char* file_name)
+void blockMgrC::endBlock(const unsigned line, const string& file_name)
 {
    if (!conditions.empty())
    {
@@ -110,38 +108,24 @@ void AADDMgr::endifAADD(const int line, const char* file_name)
 }
 
 
-void AADDMgr::whileAADD(const BDD& c)
+void blockMgrC::whileBlock(const BDD& c)
 {
     // to have only one condition on stack
-    
     if (!conditions.empty())
     {
         conditions.pop_back();
     }
-    
+
     // we need to make a copy of the temporary BDD c.
     conditions.push_back(new BDD(c) );
-    in_while = true;
 }
 
+//@short static instance of blockMgrC - there is only this one instance.
+static blockMgrC block_cond_manager;
 
-bool AADDMgr::inIf()
+blockMgrC& bCond()
 {
-    return in_if;
-}
-
-
-bool AADDMgr::inWhile()
-{
-    return in_while;
-}
-
-//@short static instance of AADDMgr - there is only this one instance.
-static AADDMgr aadd_manager;
-
-AADDMgr& scopes()
-{
-    return aadd_manager;
+    return block_cond_manager;
 }
 
 //@short static instance of condMgr - there is only this one instance.
@@ -185,11 +169,10 @@ void condMgrC::printConditions()
  Computes the overall block conditiona as a conjunction of all 
  single conditions of nested conditional statements.
  */
-const BDD& AADDMgr::blockCondition()
+const BDD& blockMgrC::blockCondition()
 {
     BDD* cond = new BDD(true);
-    if (inCond())
-        for ( auto c: scopes().conditions)
-            cond = new BDD(*cond and *c);
+    for ( auto c: bCond().conditions)
+        cond = new BDD(*cond and *c);
     return *cond;
 }
