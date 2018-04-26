@@ -33,5 +33,4 @@ This will redefine the macros for doubleS, floatS, ifS, etc. to regular C++ stat
 AADD is free software under the GPL license. 
 
 (c) 2017 Kaiserslautern University of Technology
-
 Carna Radojicic, Christoph Grimm
