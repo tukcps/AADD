@@ -33,6 +33,7 @@
  */
 
 #include "aadd_bdd.h"
+#include "aadd.h"
 
 /************************************************************
  * Description:
@@ -80,6 +81,7 @@ BDDNode::BDDNode(const unsigned long index,
     if (T!=nullptr and T->isShared()) this->T=T;
     if (F!=nullptr and F->isShared()) this->F=F;
     this->value = value;
+    
 }
 
 
@@ -88,7 +90,7 @@ BDDNode::BDDNode(const unsigned long index,
  */
 BDDNode::BDDNode(const BDDNode &source): DDNode<bool>(source)
 {
-    // everyghing done in base class. 
+    
 }
 
 
@@ -123,6 +125,27 @@ BDD::BDD(const BDD &from)
     assert(root != nullptr);
 }
 
+/**
+ @brief Constructor for creating a BDD from AADD
+ @author Carna Radojicic, Christoph Grimm
+ */
+BDD::BDD(const AADD &from)
+{
+    
+    BDD temp(from!=0);
+    
+    if (temp.root->isLeaf())
+    {
+        // we have in BDD only two leaves, ONE and ZERO.
+        root=temp.root;
+    }
+    else // recursion
+    {
+        root=new BDDNode(*temp.getRoot());
+    }
+    assert(root != nullptr);
+}
+
 
 /**
  @brief Constructor creating a BDD with one terminal vertex with value cst
@@ -133,6 +156,25 @@ BDD::BDD(const BDD &from)
 BDD::BDD(bool cst)
 {
     if (cst==true)
+    {
+        root=ONE();
+    }
+    else
+    {
+        root=ZERO();
+    }
+    assert(root != nullptr);
+}
+
+/**
+ @brief Constructor creating a BDD with one terminal vertex with value cst
+ @details The value is a Boolean number
+ @author Carna Radojicic
+ @return AADD with a single leaf node.
+ */
+BDD::BDD(int cst)
+{
+    if (cst==1)
     {
         root=ONE();
     }
@@ -173,27 +215,82 @@ BDD::BDD(BDDNode* from)
      else 
          copy = new BDDNode( *right.getRoot() ); 
 
-     if (bCond().inCond() ){
-         ITE(bCond().blockCondition(), copy, *this);
+     if (scopes().inCond() ){
+         ITE(scopes().blockCondition(), copy, *this);
      }
      else {
-         root->delete_tree();
-         root = copy;
+          root->delete_tree();
+          root = copy;
      }
      return (*this);
 }
 
+/**
+ @brief Assigment operator
+ @details Assigns AADD to BDD
+ @author Carna Radojicic, Christoph Grimm
+ @return BDD to be assigned
+ */
+BDD& BDD::operator=(const AADD& right)
+{
+    
+    BDD temp(right!=0);
+    
+    BDDNode* copy;
+    if ( temp.getRoot()->isShared() )
+        copy = temp.getRoot();
+    else
+        copy = new BDDNode( *temp.getRoot() );
+    
+    if (scopes().inCond() ){
+        ITE(scopes().blockCondition(), temp, *this);
+    }
+    else {
+        root->delete_tree();
+        root = copy;
+    }
+    return (*this);
+
+    
+    
+}
+
+/**
+ @brief Assigment operator
+ @details Assigns bool to BDD
+ @author Carna Radojicic, Christoph Grimm
+ @return BDD to be assigned
+ */
+BDD& BDD::operator=(bool right)
+{
+    BDDNode* copy;
+    
+    if (right==true)
+      copy = ONE();
+    else
+        copy = ZERO();
+    
+    if (scopes().inCond()){
+        ITE(scopes().blockCondition(), copy, *this);
+    }
+    else {
+         root->delete_tree();
+         root = copy;
+    }
+    return (*this);
+
+    
+}
 
 
 // to allow use of BDD in conditional statements
 // this further allows operator == to work in existing simulators (e.g. SystemC)
 BDD::operator bool() const
 {
-    if ((*this)==true)
-    {
+    if (!getRoot()->isLeaf())
         return true;
-    }
-    return false;
+    
+    return (getRoot()->getValue()) ;
 }
 
 

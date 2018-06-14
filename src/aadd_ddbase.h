@@ -41,9 +41,12 @@
 #include <assert.h>
 #include <iostream>
 #include <fstream>
+#include <limits>
 
 #include "aa.h"
 #include "aadd_mgr.h"
+
+using namespace std;
 
 
 /*
@@ -51,9 +54,7 @@
  @brief roots are numbered from 0 on, with increasing indices. 
  @brief leaves have index MAXINDEX
  */
-const unsigned long MAXINDEX=std::numeric_limits<unsigned long>::max();
-
-
+const unsigned long MAXINDEX=numeric_limits<unsigned long>::max();
 
 /**
  @brief Node of a binary decision diagram with leaf nodes of LeafType.
@@ -75,6 +76,7 @@ public:
     
     unsigned long getIndex()        const { return index; };
     void setIndex(unsigned long i)  { index = i;};
+    
     
     DDNode<ValueT>* getT()            const { return T; };
     DDNode<ValueT>* getF()            const { return F; };
@@ -114,6 +116,8 @@ public:
        
     unsigned numLeaves() const;
     unsigned numLeaves(const DDNode<ValT>& ) const;
+    unsigned numNodes() const;
+    unsigned numNodes(const DDNode<ValT>* ) const;
  
     // The decision diagrams root. 
     void setRoot(DDNode<ValT>* source); // deletes root and sets root to source.

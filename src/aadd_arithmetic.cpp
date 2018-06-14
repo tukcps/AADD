@@ -638,18 +638,12 @@ AADD& AADD::operator/(int cst) const
 AADD& AADD::operator+(const AADD& other) const
 {
     AADD* Temp=new AADD;
-  #ifdef JOIN
-    vector<constraint <AAF> > constraints;
-    Temp->root=Join((ApplyBinOp(Plus, getRoot(), other.getRoot())), constraints);
-  #else
-     Temp->root=ApplyBinOp(Plus, getRoot(), other.getRoot());
-  #endif
-
+    Temp->root=ApplyBinOp(Plus, getRoot(), other.getRoot());
     return (*Temp);
 } // AADD::operator+
 
 
-/*
+
 AADD& AADD::operator+(const AAF& cst) const
 {
     AADD* Temp=new AADD;
@@ -672,7 +666,6 @@ AADD& AADD::operator+(int cst) const
     Temp->root=ApplyBinOpC(PlusC, getRoot(), tmp);
     return (*Temp);
 }
-*/
 
 AADD& AADD::operator-(const AADD& other) const
 {
@@ -772,17 +765,19 @@ AADD& AADD::operator/=(int cst)
 AADD& AADD::operator/=(const AAF& cst)
 {
     AADDNode *result = ApplyBinOpC(DivideC, getRoot(), cst);
+    delete root;
     root=result;
     return (*this);
 }
 
 AADD& AADD::operator+=(const AADD& other)
 {
-    AADD result(*ApplyBinOp(Plus, getRoot(), other.getRoot()));
-    return assign(result);
+    AADDNode *result = ApplyBinOp(Plus, getRoot(), other.getRoot());
+    delete root;
+    root=result;
+    return (*this);
 } // AADD::operator+=
 
-/*
 AADD& AADD::operator+=(double cst)
 {
     AAF tmp(cst);
@@ -809,7 +804,7 @@ AADD& AADD::operator+=(const AAF& cst)
     root=result;
     return (*this);
 }
-*/
+
  
 AADD& AADD::operator-=(const AADD& other)
 {
@@ -914,7 +909,16 @@ AADD& operator * (const AAF& cst, const AADD& P)
     
 }
 
-AADD& operator / (const AAF& cst, const AADD& P)
+AADD& operator * (const BDD& cst, const AADD& P)
+{
+    
+    AADD* Temp=new AADD(P*cst);
+    return (*Temp);
+    
+}
+
+
+AADD& operator / (const BDD& cst, const AADD& P)
 {
     AADD* Temp=new AADD(inv(P)*cst);
     return (*Temp);
@@ -922,7 +926,7 @@ AADD& operator / (const AAF& cst, const AADD& P)
     
 }
 
-AADD& operator + (const AAF& cst, const AADD& P)
+AADD& operator + (const BDD& cst, const AADD& P)
 {
     
     AADD* Temp=new AADD(P+cst);
@@ -931,7 +935,7 @@ AADD& operator + (const AAF& cst, const AADD& P)
     
 }
 
-AADD& operator - (const AAF& cst, const AADD& P)
+AADD& operator - (const BDD& cst, const AADD& P)
 {
     
     AADD* Temp=new AADD(-P+cst);
@@ -1036,231 +1040,5 @@ AADD& AADD::operator%(int cst) const
     return (*Temp);
     
 } // AADD::operator%
-
-
-
-AADDNode* AADD::Join(AADDNode* f, vector<constraint<AAF> > constraints) const
-{
-    
-    AADDNode *T, *F;
-    AADDNode *fv, *gv;
-    constraint<AAF> cons;
-    
-    if (f->isLeaf() )
-    {
-        return f;
-    }
- 
-    // Recursive step
-    
-    cons.con=f->getCond();
-    
-    cons.sign='+';
-    
-    constraints.push_back(cons);
-    
-    fv=(AADDNode*)f->getT();
-    
-    T=Join(fv, constraints); // Merge applied on T child
-    
-    constraints.back().sign='-';
-    
-    gv=(AADDNode*)f->getF();
-    
-    F=Join(gv, constraints); // Merge applied on F child
-    
-    if (T->isLeaf() and F->isLeaf() )
-    {
-        if (T->getValue()==F->getValue() )
-        {
-            f->delete_tree();
-            f=T;
-        }
-        else
-        {
-            
-            // maybe we can join?
-            
-            AAF val1, val2;
-            
-            val1=T->getValue();
-            val2=F->getValue();
-            
-            double lb1, lb2;
-            double ub1, ub2;
-            
-            opt_sol bounds2=solve_lp(val2, constraints);
-            
-            constraints.back().sign='+';
-            opt_sol bounds1=solve_lp(val1, constraints);
-            
-            lb1=bounds1.min;
-            lb2=bounds2.min;
-            
-            ub1=bounds1.max;
-            ub2=bounds2.max;
-            
-            unsigned l1 = val1.getlength();
-            unsigned l2 = val2.getlength();
-            
-            #ifdef AADD_DEBUG
-            cout << "Can we join?"  << endl;
-            cout << "Range of T child " << val1 << " is: [";
-            cout << lb1 << " " << ub1 << "]." << endl;
-            cout << "Range of F child " << val2 <<  " is: [";
-            cout << lb2 << " " << ub2 << "]." << endl;
-            #endif
-            
-            // check for similarity - if ranges overlap and share symbols they are similar
-            
-            if (lb2<ub1 and lb1<ub2)
-            {
-                // val1 and val2 do not share symbols
-                // nothing to merge
-                
-                if (l1 == 0)
-                {
-                    return f;
-                }
-                
-                if (l2 == 0)
-                {
-                    return f;
-                }
-                
-                // check if two AAFs share symbols; if yes, join
-                // if not, return original node f
-                
-                unsigned * id1 = val1.getIndexes();
-                unsigned * id2 = val2.getIndexes();
-                
-                double * va1 = val1.getDeviations();
-                double * va2 = val2.getDeviations();
-                
-                unsigned * pu1 = id1;
-                unsigned * pu2 = id2;
-                
-                unsigned* idtemp = new unsigned [l1+l2];
-                
-                // Fill the resulting indexes array
-                // by joining the 2 input indexes array
-                
-                unsigned * fin = std::set_union(id1,id1+l1,id2,id2+l2,idtemp);
-                unsigned ltemp = fin-idtemp;
-                
-                vector<double> deviations;
-                vector<unsigned> indexes;
-                bool share=false;
-                
-                
-                for (unsigned i = 0; i < ltemp; i++)
-                {
-                    unsigned a = pu1-id1;
-                    unsigned b = pu2-id2;
-                    
-                    if (a == l1 || id1[a] != idtemp[i])
-                    {
-                        pu2++;
-                        continue;
-                    }
-                    
-                    if (b == l2 || id2[b] != idtemp[i])
-                    {
-                        pu1++;
-                        continue;
-                    }
-                    
-                    share=true;
-                    
-                    deviations.push_back(minimum(va1[a], va2[b]));
-                    indexes.push_back(idtemp[i]);
-                    
-                    pu1++;
-                    pu2++;
-                    
-                }
-                
-                if (share==false) // affine forms do not share symbols -- no join possible
-                {
-                    return f;
-                }
-                
-                // otherwise affine forms share symbols and overlap
-                // join
-                
-                AAF Temp;
-                
-                double min=minimum(lb1, lb2);
-                double max=maximum(ub1, ub2);
-                
-                // center of joined range is center of [lb1, ub1] union [lb2, ub2]
-                
-                double center=(min+max)/2.;
-                unsigned size=deviations.size();
-                
-                double *dev=new double[size];
-                unsigned *ind=new unsigned[size];
-                
-                
-                for (unsigned i=0; i<size; i++)
-                {
-                    dev[i]=deviations[i];
-                    ind[i]=indexes[i];
-                    
-                }
-                
-                Temp=AAF(center, dev, ind, size);
-                
-                // update offest_min and offset_max to enclose interval [lb1, ub1] union [lb2, ub2]
-                
-                constraints.pop_back();
-                
-                if (constraints.empty())
-                {
-                  Temp.offset_min=-(max-min)/2.+Temp.rad();
-                  Temp.offset_max=(max-min)/2.-Temp.rad();
-                }
-                else
-                {
-                   opt_sol bounds=solve_lp(Temp, constraints);
-                   Temp.offset_min=min-bounds.min;
-                   Temp.offset_max=max-bounds.max;
-                }
-                
-                if (Temp.offset_min>Temp.offset_max)
-                {
-                    double temp=Temp.offset_min;
-                    
-                    Temp.offset_min=Temp.offset_max;
-                    Temp.offset_max=temp;
-                    
-                }
-                
-                f->delete_tree();
-                f=new AADDNode(Temp);
- 
-        }
-        else // otherwise no join possible
-        {
-            return f;
-        }
-        }
-    }
-    else if (T==F)
-    {
-        f=T;
-    }
-    else
-    {
-       if (f->getT()!=T) f->setT(T);
-       if (f->getF()!=F) f->setF(F);
-    }
-    
-   return f;
-}
-
-
-
-
 
 

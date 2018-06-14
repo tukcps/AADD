@@ -4,9 +4,9 @@
  
  @ingroup AADD
  
- @brief Affine Arithmetic Desion Diagrams, manager of path and block conditions.
+ @brief Affine Arithmetic Desion Diagrams, manager of conditional statements.
  
- @details The file defines the static class instance that manages conditions in AADD, BDD, and conditional statements and loops. 
+ @details The file defines the static class instance that manages conditional stmts and loops. 
  @details Furthermore, we add her other static stuff such error messages etc.
  
  @author Carna Zivkovic (born Radojicic), Christoph Grimm
@@ -36,9 +36,9 @@
  */
 
 #include "aadd.h"
+#include "aadd_mgr.h"
 
-
-blockMgrC::blockMgrC()
+AADDMgr::AADDMgr()
 {
     cout << "==============================================" << endl;
     cout << "  AADD lib -- Symbolic execution is enabled."   << endl;
@@ -46,21 +46,21 @@ blockMgrC::blockMgrC()
     cout << "          C. Zivkovic, C. Grimm."              << endl;
     cout << "============================================="  << endl
     << endl;
-    startcputime = std::clock();
+    startcputime = clock();
+
 }
 
 
-blockMgrC::~blockMgrC()
+AADDMgr::~AADDMgr()
 {
-    double cpu_duration = (std::clock() - startcputime) / (double)CLOCKS_PER_SEC;
+    double cpu_duration = (clock() - startcputime) / (double)CLOCKS_PER_SEC;
     cout << endl;
-    cout << "AADD lib finished." << endl;
-    cout << "CPU time used: " << cpu_duration << " sec."<< endl;
+    cout << "Symbolic simulation took: " << cpu_duration << " seconds."<< endl;
     // condMgr().printConditions(); 
 }
 
 
-void blockMgrC::printError(string error_message, const int line, string file_name) const
+void AADDMgr::printError(const char* error_message, const int line, const char* file_name) const
 {
    if (line>0)
    {
@@ -75,17 +75,18 @@ void blockMgrC::printError(string error_message, const int line, string file_nam
 }
 
 
-void blockMgrC::thenBlock(const BDD& c)
+void AADDMgr::ifAADD(const BDD& c)
 {
-    in_if = true; 
     conditions.push_back(new BDD(c) );
+    in_if = true;
 }
 
 
-void blockMgrC::elseBlock(const unsigned line, const string& file_name)
+void AADDMgr::elseAADD(const int line, const char* file_name)
 {
     if (in_if)   // we negate last condition on stack
     {
+        in_if = false;
         BDD * last = conditions.back();
         conditions.pop_back();
         conditions.push_back( & !(*last) );
@@ -97,35 +98,49 @@ void blockMgrC::elseBlock(const unsigned line, const string& file_name)
 }
 
 
-void blockMgrC::endBlock(const unsigned line, const string& file_name)
+void AADDMgr::endifAADD(const int line, const char* file_name)
 {
    if (!conditions.empty())
    {
        conditions.pop_back();
    }
    else 
-       printError("Syntax Error: endifS too much");
+       printError("Syntax Error: endS too much");
+    
 }
 
-
-void blockMgrC::whileBlock(const BDD& c)
+void AADDMgr::whileAADD(const BDD& c)
 {
     // to have only one condition on stack
+    
     if (!conditions.empty())
     {
         conditions.pop_back();
     }
-
+    
     // we need to make a copy of the temporary BDD c.
     conditions.push_back(new BDD(c) );
+    in_while = true;
 }
 
-//@short static instance of blockMgrC - there is only this one instance.
-static blockMgrC block_cond_manager;
-
-blockMgrC& bCond()
+bool AADDMgr::inIf()
 {
-    return block_cond_manager;
+    return in_if;
+}
+
+
+bool AADDMgr::inWhile()
+{
+    return in_while;
+}
+
+
+//@short static instance of AADDMgr - there is only this one instance.
+static AADDMgr aadd_manager;
+
+AADDMgr& scopes()
+{
+    return aadd_manager;
 }
 
 //@short static instance of condMgr - there is only this one instance.
@@ -166,13 +181,15 @@ void condMgrC::printConditions()
 };
 
 /*
- Computes the overall block conditiona as a conjunction of all 
+ Computes the overall block conditions as a conjunction of all
  single conditions of nested conditional statements.
  */
-const BDD& blockMgrC::blockCondition()
+const BDD& AADDMgr::blockCondition()
 {
     BDD* cond = new BDD(true);
-    for ( auto c: bCond().conditions)
-        cond = new BDD(*cond and *c);
+    if (inCond())
+        for ( auto c: scopes().conditions)
+            cond = new BDD(*cond and *c);
     return *cond;
 }
+

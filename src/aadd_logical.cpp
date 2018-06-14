@@ -129,8 +129,14 @@ BDDNode* Xor(BDDNode* f, BDDNode* g)
     
     F = f; G = g;
     if (F == G) return(zero);
-    if (F == one && G == zero) return(one);
-    if (G == one && F == zero) return(one);
+    if (F == one && G == zero)
+    {
+        return(one);
+    }
+    if (G == one && F == zero)
+    {
+        return(one);
+    }
     return(nullptr);
 }
 

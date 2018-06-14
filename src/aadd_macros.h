@@ -4,11 +4,13 @@
    Macros that replace conditional and iteration statements. 
  */ 
 
-#define ifS(cond)       { bCond().thenBlock(cond);
-#define elseS             bCond().elseBlock(__LINE__, __FILE__);
-#define endS              bCond().endBlock(__LINE__, __FILE__);}
+#define ifS(cond)       {scopes().ifAADD(cond);
+#define elseS           scopes().elseAADD(__LINE__, __FILE__);
+#define endS            scopes().endifAADD(__LINE__, __FILE__);}
+#define endf            scopes().endifAADD(__LINE__, __FILE__);
 #define whileS(cond)    while (cond!=false) \
-                        { bCond().whileBlock(cond);
+                        {scopes().whileAADD(cond);
+
 
 /*
  Example:

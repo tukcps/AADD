@@ -1,12 +1,12 @@
 /**
  
- @file aadd_mgr.h
+ @file aadd_if.h
  
  @ingroup AADD
  
- @brief Affine Arithmetic Desion Diagrams manager of block and path conditions.
+ @brief Affine Arithmetic Desion Diagrams, manager of conditions and control-flow statements.
  @details The file defines the static class instance that manages conditional stmts and loops.
- @details We destinguish path conditions and block conditions. 
+ @details We destinguish paht conditions and block conditions. 
  @details  Path conditions are all conditions between the program start and the current point of execution
  that cannot be evaluated to true or false at runtime.
  @details Block conditions are the conditions that are a condition to the current assignment statements.
@@ -44,6 +44,9 @@
 #define aadd_if_h
 
 #include <vector>
+#include <time.h>
+
+using namespace std;
 
 class AAF;
 class BDD;
@@ -65,6 +68,11 @@ private:
 public:
     unsigned long addCond(const AAF&c);        // returns index of new condition
     AAF& getCond(unsigned long index) const;
+    
+private:
+    vector<BDD*> block_conditions;
+
+public:
     void printConditions();
    
     condMgrC();  
@@ -72,38 +80,63 @@ public:
 
 condMgrC& condMgr();
 
-
 /**
- @brief The class blockMgr holds static data structures for AADD.
+ @brief The class BlockMgr holds static data structures for AADD.
  @details This manager handles the block conditions. 
  Block conditions are the conditions that are a condition to the current assignment statements.
  Block conditions stem from conditional or iteration statements.
  */
 class blockMgrC
 {
-private: 
-    vector<BDD* > conditions;                  //@short holds a stack of block conditions. 
-    bool in_if;                                //@short true if in then-part of if statement. 
-    std::clock_t startcputime;
-
-public: 
-    blockMgrC(); 
-    ~blockMgrC(); 
-
-    void thenBlock(const BDD& c);              //@short starts a conditional block, e.g. in if(c) ...
-    void elseBlock(unsigned line, const string& filename); //@short adds else part.
-    void endBlock(unsigned line, const string& filename); //@short pops a block condition. 
-    void whileBlock(const BDD& c);             //@short pushes condition of a while iteration.
+    vector<BDD* > block_conds; 
+    void thenBlock(BDD* c, unsigned line=0);   //@short starts a conditional block, e.g. in if(c) ...
+    void elseBlock(unsigned line=0);           //@short adds else part.
+    void whileBlock(BDD* c, unsigned line=0);  //@short condition of a while iteration.
     void endBlock();                           //@short ends a conditional block, e.g. end of if stmt. or while.
-
-    inline bool inCond()                       { return !conditions.empty(); };
-    const BDD& blockCondition();               //@short computes the current block condition as conjunction of all conditions on stack. 
-
-    void printError(string error_message, 
-                    const int line=0, 
-                    string file_name="") const;
 };
 
-blockMgrC& bCond();
+
+/**
+ @brief The class AADDMgr holds static data structures for AADD. 
+ @detail This includes first of all a vector of conditions for conditional and iteration statements. 
+     This is basically the currently active path conditions. 
+     A condition is removed once a conditional stmt or iteration statement is left.
+ 
+     Furthermore, we handle central user messages via this class.
+ */
+class AADDMgr
+{
+public:
+    
+    vector<BDD* >  conditions; // In AADD, the block condition is a conjunction of the BDD of this vector
+    
+    void ifAADD(const BDD &c);  // pushes pointer to cond c on the stack.
+                                // We now save cond and t parts if any.
+                                // … in overloaded assignment operators.
+    bool inCond()               { return !conditions.empty(); };
+    const BDD& blockCondition();
+    bool inIf();
+    bool inWhile();
+    void elseAADD(const int line, const char* file_name);     
+    void endifAADD(const int line, const char* file_name);
+    void endActivation();
+    
+    void whileAADD(const BDD& c); // pushes pointer to condition c on the stack.
+                             // loop is repeated until c is false.
+    
+    void printError(const char* error_message, const int line=0, const char* file_name="") const;
+
+    
+    AADDMgr();
+    ~AADDMgr();
+    
+private:
+    bool in_if;
+    bool in_while;
+    clock_t startcputime;
+   
+};
+
+AADDMgr& scopes();
 
 #endif
