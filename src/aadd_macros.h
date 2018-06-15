@@ -7,7 +7,6 @@
 #define ifS(cond)       {scopes().ifAADD(cond);
 #define elseS           scopes().elseAADD(__LINE__, __FILE__);
 #define endS            scopes().endifAADD(__LINE__, __FILE__);}
-#define endf            scopes().endifAADD(__LINE__, __FILE__);
 #define whileS(cond)    while (cond!=false) \
                         {scopes().whileAADD(cond);
 
