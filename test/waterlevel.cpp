@@ -34,7 +34,7 @@ int main()
     //cout << "level: " << level; 
   }
   cout << "Hashvalue of numLeafs: " << hash << endl;
-  cout << "             expected: 7671" << endl;
-  assert (hash == 7671);
+  cout << "             expected: 7622" << endl;
+  assert (hash == 7622);
 }
 
