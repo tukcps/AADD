@@ -51,7 +51,7 @@ DDNode<ValT>::DDNode(const DDNode<ValT> &from)
         assert(from.isNotShared()); // If assertion fails, shared node e.g. ONE would be copied
         index = MAXINDEX;
         value = from.getValue();
-        T = F = nullptr;
+        T = F = NULL;
     }
     else // no leaf, recursion
     {
@@ -131,7 +131,7 @@ template<class ValT>
 DDNode<ValT>* DDBase<ValT>::stealRoot()
 {
     DDNode<ValT>* temp = root;
-    root = nullptr;
+    root = NULL;
     return temp;
 };
 
