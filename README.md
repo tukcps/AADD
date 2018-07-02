@@ -82,7 +82,7 @@ Chair of Design of Cyber-Physical Systems
 TU Kaiserslautern  
 Postfach 3049   
 67653 Kaiserslautern  
-radojicic@cs.uni-kl.de  
+zivkovic@cs.uni-kl.de  
 https://cps.cs.uni-kl.de/mitarbeiter/carna-radojicic-msc/  
 
 Christoph Grimm  

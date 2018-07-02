@@ -1,0 +1,9 @@
+set terminal postscript eps enhanced color
+set output '|ps2pdf - plot.pdf'
+set title "Quantizer Input"
+set xlabel "Time [s]"
+set ylabel "Quantizer Input [in]"
+set grid
+plot "plots.txt" using 1:2 with lines title "lower border", \
+     "plots.txt" using 1:3 with lines title "upper border"
+     

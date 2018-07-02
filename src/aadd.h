@@ -54,13 +54,14 @@ typedef AADDNode* (*AADD_UOP)(AADDNode*);
  @brief Nodes of an AADD with defintion of operations on AADD
  @authors Christoph Grimm
  */
-class AADDNode: public DDNode<AAF> {
+class AADDNode: public DDNode<AAF>
+{
 public: 
     // AADDNode();
     AADDNode(const AAF&);
     AADDNode(const AADDNode& source); // copy constructor
     AADDNode(const unsigned long index, AADDNode* T, AADDNode* F);
-
+    
     // some casts that are always true.
     AADDNode* getT() const { return (AADDNode*) T; };
     AADDNode* getF() const { return (AADDNode*) F; };
@@ -73,11 +74,10 @@ public:
 
 
 /**
- @brief The AADD class implements a decision diagram that takes AAF as leaf nodes and AAF as conditions.
- @details The AADD class uses a tree of AADDNode objects to set up a decision diagram that has AAF objects as leafs. 
-The AADD class mostly handles the integration in C++ semantics and memory management. 
+ @brief AADD class implements a decision diagram that takes AAF as leaf nodes and AAF as conditions.
  @authors Carna Radojicic, Christoph Grimm
  */
+
 class AADD: public DDBase<AAF>
 {
   public:
@@ -86,16 +86,17 @@ class AADD: public DDBase<AAF>
     AADD(double lb, double ub); 
     AADD(int cst);
     AADD(const AAF&);
+    AADD(const BDD&);
     
     //copy constructors
     AADD(const AADD& from);
     AADD(const AADDNode& from);
+
     
     // destructor
     ~AADD();
     
     // Assigment operators
-    AADD& assign(const AADD& right);
     AADD& operator=(const AADD& right);
     
     // Relational operators    
@@ -105,7 +106,7 @@ class AADD: public DDBase<AAF>
     BDD& operator>(const AADD&) const;
     BDD& operator==(const AADD&) const;
     BDD& operator!=(const AADD&) const;
-    
+   
     // Arithmetic operators
     AADD& operator-() const;
     AADD& operator*(const AADD&) const;
@@ -116,13 +117,11 @@ class AADD: public DDBase<AAF>
     AADD& operator+=(const AADD&);
     AADD& operator-(const AADD&) const;
     AADD& operator-=(const AADD&);
-
-// folloing will be removed: 
-// Is handled by C++ constructor of AADD from double, AAF, int anyhow. 
     AADD& operator*(double)const;
     AADD& operator*=(double);
     AADD& operator/(double)const;
     AADD& operator/=(double);
+    AADD& operator+(double) const;
     AADD& operator+=(double);
     AADD& operator-(double) const;
     AADD& operator-=(double);
@@ -130,6 +129,7 @@ class AADD: public DDBase<AAF>
     AADD& operator*=(int);
     AADD& operator/(int)const;
     AADD& operator/=(int);
+    AADD& operator+(int) const;
     AADD& operator+=(int);
     AADD& operator-(int) const;
     AADD& operator-=(int);
@@ -137,18 +137,17 @@ class AADD: public DDBase<AAF>
     AADD& operator*=(const AAF&);
     AADD& operator/(const AAF&)const;
     AADD& operator/=(const AAF&);
+    AADD& operator+(const AAF&) const;
     AADD& operator+=(const AAF&);
     AADD& operator-(const AAF&) const;
     AADD& operator-=(const AAF&);
-
     AADD& operator%(int)const;
- 
-   
+    
     // Unary operations
     friend AADD& inv(const AADD&);
     friend AADD& abs(const AADD&);
     friend AADD& floor(const AADD&);
-    
+        
     // ITE function on two AADD with a BDD as condition
     AADD& ITE(const BDD&,const AADD&,const AADD&);
     AADD& ITE(const BDD&,const AAF&, const AAF&);
@@ -164,12 +163,12 @@ class AADD: public DDBase<AAF>
     AADDNode* Join(AADDNode* f, vector<constraint<AAF> >) const;
     
     AADDNode* getRoot() const { return (AADDNode*) root; };
-
+    
     // find bounds of ranges of tree leafs
     double GetMin() const;
     double GetMax() const;
     opt_sol GetBothBounds() const;
-    
+
     // printing AADD to stream s, default is cout
     void print(std::ostream & s=std::cout) const;
 
@@ -183,7 +182,7 @@ class AADD: public DDBase<AAF>
     // Recursive functions for Arithmetic operators
     AADDNode* Modulo(AADDNode*, int) const;
     
-    // Method that computes tight bounds of leafs of AAF by setting up an LP problem. Calls GLPK for solving it. 
+    // Method that computes bounds of leafs of AAF
     opt_sol FindBounds(AADDNode*,  vector<constraint<AAF> >) const;
 };
 
@@ -204,6 +203,10 @@ AADD& operator / (const AAF&, const AADD&);
 AADD& operator + (const AAF&, const AADD&);
 AADD& operator - (const AAF&, const AADD&);
 
+AADD& operator * (const BDD&, const AADD&);
+AADD& operator / (const BDD&, const AADD&);
+AADD& operator + (const BDD&, const AADD&);
+AADD& operator - (const BDD&, const AADD&);
 
 // Operations on AADDNodes for internal use:
 AADDNode* Times(AADDNode*, AADDNode*);

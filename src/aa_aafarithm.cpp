@@ -31,6 +31,8 @@
 #include <cmath>
 #include <algorithm>
 
+using namespace std;
+
 /************************************************************
  * Operator:      +=
  * Author & Date: ??? - ???
@@ -417,7 +419,7 @@ AAF AAF::operator + (const AAF & P) const
   // Fill the resulting indexes array
   // by merging the 2 input indexes array
 
-  unsigned * fin = std::set_union(id1,id1+l1,id2,id2+l2,idtemp);
+  unsigned * fin = set_union(id1,id1+l1,id2,id2+l2,idtemp);
   unsigned ltemp = fin-idtemp;
 
   if (ltemp)

@@ -65,6 +65,7 @@ AADDNode::AADDNode(const unsigned long index, AADDNode*T, AADDNode*F):
     value = 0.0;
 }
 
+
 /**
  @brief Constructor creating AADD with one terminal vertex with value cst
  @details The value is a real number
@@ -132,6 +133,26 @@ AADD::AADD(const AADD &from)
     }
 }
 
+/**
+ @brief Constructor creating AADD from BDD
+ @author Carna Radojicic, Christoph Grimm
+ */
+AADD::AADD(const BDD &from)
+{
+    AADD temp;
+    
+    ifS(from)
+    {
+        temp=1;
+    }
+    elseS
+    {
+        temp=0;
+    }
+    endS
+    
+    root=new AADDNode(*temp.getRoot());
+}
 
 /**
  @brief Constructor creating AADD with the root equal to node and copy of rest.
@@ -153,40 +174,26 @@ AADD::~AADD()
     root=nullptr;
 }
 
-
 /**
- @brief Assigment method. Copies an AADD parameter while considering block conditions. 
- @details Assigns an AADD right to this AADD
+ @brief Assigment operator
+ @details Assigns a real value to AADD
  @author Carna Radojicic, Christoph Grimm
- @return AADD this with result. 
- */
-AADD& AADD::assign(const AADD& right)
-{
-    if (bCond().inCond())  {   // in conditional stmt.
-        ITE(bCond().blockCondition(), *new AADD(right), *this);
-    } else {                    // not in any conditional statement.
-        if ( this!=&right ) {
-            // first free memory of (*this)
-            root->delete_tree();
-            root = new AADDNode(*right.getRoot());
-        }
-        // otherwise root stays the same...
-    }
-    return (*this);
-}
-
-
-
-/**
- @brief Assigment operator of C++ AADD <- AADD
- @details Assigns an AADD right to AADD and returns reference. 
-          It also considers block conditions in doing this. 
- @author Carna Radojicic, Christoph Grimm
- @return AADD this with result.
+ @return AADD to be assigned
  */
 AADD& AADD::operator=(const AADD& right)
 {
-    return assign(right);
+    if (scopes().inCond())  {   // in conditional stmt. 
+        ITE(scopes().blockCondition(), *new AADD(right), *this);
+    } else {                    // not in any conditional statement.
+        if ( this!=&right ) {
+             // first free memory of (*this)
+             root->delete_tree();
+             root = new AADDNode(*right.getRoot());
+        } // otherwise root stays the same...
+        
+    }
+    
+    return (*this);
 }
 
 
@@ -214,10 +221,11 @@ AADD& AADD::ITE(const BDD& c, const AADD& t, const AADD& f)
 
     // otherwise, we need to create a new AADD.
     // specific form of Shannon expansion is here: aadd = c*t + ic*f. 
-    AADDNode *Temp, *Temp2;
-    Temp  = BTimesA(c.getRoot(), t.getRoot() );
-    Temp2 = BTimesA((!c).getRoot(), f.getRoot());
-    setRoot(ApplyBinOp(Plus, Temp, Temp2));
+    AADD Temp, Temp2;
+
+    Temp.setRoot(Temp.BTimesA(c.getRoot(), t.getRoot() ) );
+    Temp2.setRoot(Temp.BTimesA((!c).getRoot(), f.getRoot()) );
+    setRoot(Temp.ApplyBinOp(Plus, Temp.getRoot(), Temp2.getRoot()));
 
     return (*this);
 }
@@ -297,4 +305,6 @@ void AADDNode::print(const string& indent, std::ostream & s) const
         s << endl;
     }
 }
+
+
 

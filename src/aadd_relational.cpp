@@ -63,6 +63,21 @@ BDDNode* AADD::Compare(AADDNode* f,
         
         AAF tmp=f->getValue();
         
+        if (op=="==")
+        {
+            // check if tmp is equal to threshold
+            
+            if (tmp==threshold)
+            {
+                return one;
+            }
+            else
+            {
+                return zero;
+            }
+            
+        }
+        
         bounds=solve_lp(tmp, constraints);
         
         if (bounds.max<threshold and !(fabs(bounds.max-threshold)<1e-20))
@@ -278,107 +293,122 @@ BDD& AADD::operator>(const AADD& right) const
 
 BDD& AADD::operator==(const AADD& right) const
 {
-   
-    AADD temp=(*this)-right;
+
+    AADD diff=(*this)-right;
     vector<constraint<AAF> > cons;
-    BDD pom; // only to call ApplyBinOp for and operation
-    
-    // first check (*this)>=right
-    
-    BDDNode * Temp1=Compare(temp.getRoot(), 0, cons, ">=");
+    BDD *r=new BDD(Compare(diff.getRoot(), 0, cons, "=="));
     cons.clear();
-    
-    // then (*this)<=right
-    
-    double ths=0+1e-10;
-    BDDNode* Temp2 = Compare(temp.getRoot(), ths, cons, "<=");
-    cons.clear();
-    
-    
-    // then apply AND operation
-    // (*this==right) is true if both (>=) and (<=) return true
-    // (Temp1 and Temp2 point to leaf nodes with value=1)
-    
-    BDD*res=new BDD;
-    res->setRoot(pom.ApplyBinOp(And, Temp1, Temp2));
-    
-    Temp1->delete_tree();
-    Temp2->delete_tree();
 
-    return (*res);
+    return (*r);
     
-
-} // AADD::operator ==
-
-
+}
 
 /**
  
  @brief Relational operator !=
- @details Compares AADD with AADD
- @author Carna Radojicic
+ @details Compares two AADDs
+ @author Carna Radojicic, Christoph Grimm
  @return negation of operator ==
  
  */
+
+
 BDD& AADD::operator!=(const AADD& right) const
 {
-    BDD* r=new BDD(!((*this)==right));
-    return (*r);
-} // AADD::operator !=
+   
+    return !((*this)==right);
+    
+    
+}
 
 /**
  
  @brief Relational operator ==
  
- @details Compares AADD with AADD
+ @details Compares two BDDs
  
  @author Carna Radojicic, Christoph Grimm
  
- @return true if intervals or real numbers of leaf nodes of the left operand <br>
- are equal to intervals or real numbers of leaf nodes of the right operand <br>
- false if they do not overlap, UNKNOWN={false, true} otherwise <br>
- All possible return values are represented by AADD
+ @return true if two BDDs are equal, otherwise false
+ */
+
+BDD& BDD::operator==(const BDD& right) const
+{
+    // if two BDDs are equal (a xor b) will be 0
+    // we need to do negation to get correct result
+    
+    BDD *r=new BDD(((*this) xor right));
+    
+    return !(*r);
+
+    
+} // BDD::operator ==
+
+/**
+ 
+ @brief Relational operator ==
+ 
+ @details Compares two BDDs
+ 
+ @author Carna Radojicic, Christoph Grimm
+ 
+ @return true if two BDDs are not equal, otherwise false
+ */
+
+
+BDD& BDD::operator!=(const BDD& right) const
+{
+     // if two BDDs are not equal (a xor b) will be 1
+    BDD *r=new BDD((*this) xor right);
+    
+    return (*r);
+    
+} // BDD::operator !=
+
+/**
+ 
+ @brief Relational operator ==
+ 
+ @details Compares BDD with Boolean value
+ 
+ @author Carna Radojicic, Christoph Grimm
+ 
+ @return true if BDD is a leaf node with the value equal to right,
+ otherwise false
  
  */
 
-bool BDD::operator==(const BDD& right) const
+bool BDD::operator==(const bool right) const
 {
-    // cannot be equal if roots have different index. 
-    if (getRoot()->getIndex() != right.getRoot()->getIndex())
-        return false;
+     if (!getRoot()->isLeaf()) // then r may get a value from {false, true}
+     {
+       return false;
+     }
     
-    // check terminal case
-    if (root->isLeaf() )
-    {
-        if (getRoot()==right.getRoot())
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
+     return (getRoot()->getValue()==right);
     
-    if (getRoot()->getT() != right.getRoot()->getT())
-    {
-        return false;
-    }
-    if (getRoot()->getF() != right.getRoot()->getF())
-    {
-        return false;
-    }
-    return true;
     
 } // BDD::operator ==
+
+/**
  
-bool BDD::operator!=(const BDD& right) const
+ @brief Relational operator !=
+ 
+ @details Compares BDD with Boolean value
+ 
+ @author Carna Radojicic, Christoph Grimm
+ 
+ @return false if BDD is a leaf node with the value equal to right,
+ otherwise true
+
+ */
+
+
+bool BDD::operator!=(const bool right) const
 {
-     return !((*this)==right);
+    return !((*this)==right);
+    
 } // BDD::operator !=
-
-
-
 
 
 

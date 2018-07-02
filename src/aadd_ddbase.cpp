@@ -189,46 +189,6 @@ int DDBase<AAF>::printFile(FILE* fp, const DDNode<AAF>* node) const
               return(1);
           }
           
-        /*   AAF cond=node->getCond();
-          
-          retval=fprintf(fp,  " %g", cond.getcenter());
-          
-          if (retval == EOF)
-          {
-              cout << "END of FILE!" << endl;
-              return(1);
-          }
-          
-          for (unsigned i=0; i<cond.getlength(); i++)
-          {
-              
-              if (cond[i+1]>=0)
-              {
-                  retval=fprintf(fp, "+");
-                  
-                  if (retval == EOF)
-                  {
-                      cout << "END of FILE!" << endl;
-                      return(1);
-                  }
-              }
-              
-              retval=fprintf(fp, "%g*e%u", cond[i+1], cond.getIndexes()[i]);
-              
-              if (retval == EOF)
-              {
-                  cout << "END of FILE!" << endl;
-                  return(1);
-              }
-          }
-          
-          if (cond.offset_min!=0 or cond.offset_max!=0)
-          {
-              retval=fprintf(fp, "+[%g, %g]", cond.offset_min, cond.offset_max);
-              
-          }
-          retval=fprintf(fp,"\"];\n"); */
-          
 
           retval = fprintf(fp,
                            "\"%p\" -> \"%p\" [style = solid];\n",

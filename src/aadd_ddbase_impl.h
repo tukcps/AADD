@@ -51,7 +51,7 @@ DDNode<ValT>::DDNode(const DDNode<ValT> &from)
         assert(from.isNotShared()); // If assertion fails, shared node e.g. ONE would be copied
         index = MAXINDEX;
         value = from.getValue();
-        T = F = nullptr;
+        T = F = NULL;
     }
     else // no leaf, recursion
     {
@@ -131,7 +131,7 @@ template<class ValT>
 DDNode<ValT>* DDBase<ValT>::stealRoot()
 {
     DDNode<ValT>* temp = root;
-    root = nullptr;
+    root = NULL;
     return temp;
 };
 
@@ -170,7 +170,7 @@ unsigned DDBase<ValT>::numLeaves(const DDNode<ValT>& f) const
  @brief Public Method that returns number of leaf nodes in the AADD
  for which the method is called
  @author Carna Radojicic
- @return number of leaf methods returned
+ @return number of leaf nodes returned
  */
 template<class ValT>
 unsigned DDBase<ValT>::numLeaves() const
@@ -178,6 +178,39 @@ unsigned DDBase<ValT>::numLeaves() const
     return numLeaves(*root);
 }
 
+/**
+ @brief returns the number of intermediate nodes in the AADD
+ @author Christoph Grimm, Carna Radojicic
+ @return number of intermediate nodes
+ */
+template <class ValT>
+unsigned DDBase<ValT>::numNodes(const DDNode<ValT>* source) const
+{
+    if (source->isLeaf())
+    {
+        return 0;
+    }
+    else
+    {
+        unsigned count=1;
+        count+=numNodes(source->getT());
+        count+=numNodes(source->getF());
+        return count;
+    }
+    
+}
+
+/**
+ @brief Public Method that returns number of intermediate nodes in the AADD
+ for which the method is called
+ @author Carna Radojicic
+ @return number of intermediate nodes returned
+ */
+template <class ValT>
+unsigned DDBase<ValT>::numNodes() const
+{
+    return numNodes(root);
+}
 
 
 /**
@@ -214,7 +247,7 @@ void DDBase<ValT>::printGraphViz(const string file_name) const
         return;
     }
     
-    retval=printFile(fp, *root);
+    retval=printFile(fp, root);
     
     if (retval==0)
     {

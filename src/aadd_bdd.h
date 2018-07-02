@@ -33,6 +33,7 @@
 #include "aadd_ddbase.h"
 
 
+
 class BDDNode: public DDNode<bool> {
 public: 
     BDDNode(const BDDNode& source);        // copy constructor
@@ -45,7 +46,10 @@ public:
     BDDNode* getF() const { return (BDDNode*) F; };
     bool getValue() const { return value; };
     
+
     void print(const string&, std::ostream &) const;
+    
+
 };
 
 
@@ -70,8 +74,10 @@ public:
    
     // Comparison of BDD with other BDD.
     // Comparison of BDD with bool.
-    bool operator==(const BDD&) const;
-    bool operator!=(const BDD&) const;
+    BDD& operator==(const BDD&) const;
+    BDD& operator!=(const BDD&) const;
+    bool operator==(const bool) const;
+    bool operator!=(const bool) const;
     
     // Logical operators on BDD
     BDD& operator!() const;
@@ -82,11 +88,13 @@ public:
     BDD& operator or(const BDD&) const;
     BDD& operator xor(const BDD& g) const;
     BDD& operator=(const BDD&);
+    BDD& operator=(const AADD&);
+    BDD& operator=(bool);
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wc++11-extensions"
+  #pragma clang diagnostic push
+  #pragma clang diagnostic ignored "-Wc++11-extensions"
     explicit operator bool() const;
-#pragma clang diagnostic pop
+  #pragma clang diagnostic pop
     
     BDD& nand(const BDD& g) const;
     BDD& nor(const BDD& g) const;
@@ -104,7 +112,9 @@ public:
     void print(std::ostream & s) const;
 
     BDD(bool = false);
+    BDD(int);
     BDD(const BDD& from);
+    BDD(const AADD& from);
     BDD(BDDNode* root);
     ~BDD();
 
@@ -130,9 +140,6 @@ BDDNode* Floor(BDDNode*);
 BDDNode* Negate(BDDNode*);
 
 
-
 std::ostream & operator << (std::ostream & s, const BDD& f);
-
-
 
 #endif /* aadd_bdd_h */
