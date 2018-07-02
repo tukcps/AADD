@@ -46,13 +46,13 @@ blockMgrC::blockMgrC()
     cout << "          C. Zivkovic, C. Grimm."              << endl;
     cout << "============================================="  << endl
     << endl;
-    startcputime = std::clock();
+    startcputime = clock();
 }
 
 
 blockMgrC::~blockMgrC()
 {
-    double cpu_duration = (std::clock() - startcputime) / (double)CLOCKS_PER_SEC;
+    double cpu_duration = (clock() - startcputime) / (double)CLOCKS_PER_SEC;
     cout << endl;
     cout << "AADD lib finished." << endl;
     cout << "CPU time used: " << cpu_duration << " sec."<< endl;

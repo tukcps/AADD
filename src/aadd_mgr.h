@@ -44,6 +44,9 @@
 #define aadd_if_h
 
 #include <vector>
+#include <time.h>
+
+using namespace std;
 
 class AAF;
 class BDD;
@@ -84,7 +87,7 @@ class blockMgrC
 private:
     vector<BDD* > conditions;                  //@short holds a stack of block conditions.
     bool in_if;                                //@short true if in then-part of if statement.
-    std::clock_t startcputime;
+    clock_t startcputime;
     
 public:
     blockMgrC();
