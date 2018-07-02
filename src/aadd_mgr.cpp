@@ -86,7 +86,6 @@ void AADDMgr::elseAADD(const int line, const char* file_name)
 {
     if (in_if)   // we negate last condition on stack
     {
-        in_if = false;
         BDD * last = conditions.back();
         conditions.pop_back();
         conditions.push_back( & !(*last) );
@@ -103,6 +102,18 @@ void AADDMgr::endifAADD(const int line, const char* file_name)
    if (!conditions.empty())
    {
        conditions.pop_back();
+       
+       // only one condition was on the stack;
+       // no nested statements
+       if (conditions.empty())
+       {
+           if (in_if)
+               in_if=false;
+           
+           if(in_while)
+               in_while=false;
+       }
+
    }
    else 
        printError("Syntax Error: endS too much");
