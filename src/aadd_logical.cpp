@@ -4,7 +4,7 @@
  
  @ingroup AADD
  
- @brief Logical operations with AADD.
+ @brief Logical operations with BDD.
  
  @author Carna Radojicic, Christoph Grimm
  

@@ -152,8 +152,11 @@ class AADD: public DDBase<AAF>
     // ITE function on two AADD with a BDD as condition
     AADD& ITE(const BDD&,const AADD&,const AADD&);
     AADD& ITE(const BDD&,const AAF&, const AAF&);
+
+    // For reducion of AADD
+    // AADD& join(AADDnode
     
-    // for implementation of operations.
+    // Helpers for implementation of operations.
     AADDNode* ApplyBinOp(AADD_AOP op, AADDNode* f, AADDNode* g) const;
     AADDNode* ApplyBinOpC(AADD_AOPC op, AADDNode* f, const AAF& g) const;
     AADDNode* ApplyUnaryOp(AADD_UOP op, AADDNode* f) const;
