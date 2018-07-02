@@ -89,6 +89,7 @@ class AADD: public DDBase<AAF>
     AADD(const BDD&);
     
     //copy constructors
+    AADD& assign(const AADD& right);
     AADD(const AADD& from);
     AADD(const AADDNode& from);
 
@@ -117,30 +118,8 @@ class AADD: public DDBase<AAF>
     AADD& operator+=(const AADD&);
     AADD& operator-(const AADD&) const;
     AADD& operator-=(const AADD&);
-    AADD& operator*(double)const;
-    AADD& operator*=(double);
-    AADD& operator/(double)const;
-    AADD& operator/=(double);
-    AADD& operator+(double) const;
-    AADD& operator+=(double);
-    AADD& operator-(double) const;
-    AADD& operator-=(double);
-    AADD& operator*(int)const;
-    AADD& operator*=(int);
-    AADD& operator/(int)const;
-    AADD& operator/=(int);
-    AADD& operator+(int) const;
-    AADD& operator+=(int);
-    AADD& operator-(int) const;
-    AADD& operator-=(int);
-    AADD& operator*(const AAF&)const;
-    AADD& operator*=(const AAF&);
-    AADD& operator/(const AAF&)const;
-    AADD& operator/=(const AAF&);
-    AADD& operator+(const AAF&) const;
-    AADD& operator+=(const AAF&);
-    AADD& operator-(const AAF&) const;
-    AADD& operator-=(const AAF&);
+    
+    // Modulo operator
     AADD& operator%(int)const;
     
     // Unary operations
@@ -182,12 +161,13 @@ class AADD: public DDBase<AAF>
     // Recursive functions for Arithmetic operators
     AADDNode* Modulo(AADDNode*, int) const;
     
-    // Method that computes bounds of leafs of AAF
+   // Method that computes tight bounds of leafs of AAF by setting up an LP problem. Calls GLPK for solving it.
     opt_sol FindBounds(AADDNode*,  vector<constraint<AAF> >) const;
 };
 
 
 // Operators that take lvalue of non-AADD type.
+
 AADD& operator * (double, const AADD&);
 AADD& operator / (double, const AADD&);
 AADD& operator + (double, const AADD&);
@@ -206,7 +186,7 @@ AADD& operator - (const AAF&, const AADD&);
 AADD& operator * (const BDD&, const AADD&);
 AADD& operator / (const BDD&, const AADD&);
 AADD& operator + (const BDD&, const AADD&);
-AADD& operator - (const BDD&, const AADD&);
+AADD& operator - (const BDD&, const AADD&); 
 
 // Operations on AADDNodes for internal use:
 AADDNode* Times(AADDNode*, AADDNode*);

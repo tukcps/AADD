@@ -139,19 +139,24 @@ AADD::AADD(const AADD &from)
  */
 AADD::AADD(const BDD &from)
 {
-    AADD temp;
-    
-    ifS(from)
-    {
-        temp=1;
+   if (from.getRoot()->isLeaf()) {
+        if ( from.getRoot()->getValue() == true ) {
+                root=new AADDNode(1);
+        }
+        else {
+                root=new AADDNode(0);
+        }
     }
-    elseS
-    {
-        temp=0;
-    }
-    endS
+        
+    // otherwise, we need to create a new AADD
+    // using Shannon expansion: aadd = c*t + ic*f.
+    AADDNode* Temp=new AADDNode(1);
+    AADDNode* Temp1=new AADDNode(0);
+        
+    Temp=BTimesA(from.getRoot(), Temp);
+    Temp1=BTimesA((!from).getRoot(), Temp1);
+    setRoot(ApplyBinOp(Plus, Temp, Temp1));
     
-    root=new AADDNode(*temp.getRoot());
 }
 
 /**
@@ -175,33 +180,43 @@ AADD::~AADD()
 }
 
 /**
- @brief Assigment operator
- @details Assigns a real value to AADD
+ @brief Assigment method. Copies an AADD parameter while considering block conditions.
+ @details Assigns an AADD right to this AADD
  @author Carna Radojicic, Christoph Grimm
- @return AADD to be assigned
+ @return AADD this with result.
  */
-AADD& AADD::operator=(const AADD& right)
+AADD& AADD::assign(const AADD& right)
 {
-    if (scopes().inCond())  {   // in conditional stmt. 
-        ITE(scopes().blockCondition(), *new AADD(right), *this);
+    if (bCond().inCond())  {   // in conditional stmt.
+        ITE(bCond().blockCondition(), *new AADD(right), *this);
     } else {                    // not in any conditional statement.
         if ( this!=&right ) {
-             // first free memory of (*this)
-             root->delete_tree();
-             root = new AADDNode(*right.getRoot());
-        } // otherwise root stays the same...
-        
+            // first free memory of (*this)
+            root->delete_tree();
+            root = new AADDNode(*right.getRoot());
+        }
+        // otherwise root stays the same...
     }
-    
     return (*this);
 }
 
+/**
+ @brief Assigment operator of C++ AADD <- AADD
+ @details Assigns an AADD right to AADD and returns reference.
+ It also considers block conditions in doing this.
+ @author Carna Radojicic, Christoph Grimm
+ @return AADD this with result.
+ */
+AADD& AADD::operator=(const AADD& right)
+{
+    return assign(right);
+}
 
 
 /**
  @brief Builds an AADD from ifcase and thencase with condition as conditions.
  @details ITE function that takes two AADD as if and then arguments and has a BDD as a condition.
- @details to mix both AADD into one, arithmetic operations are used that do the copying. 
+ @details to mix both AADD into one, arithmetic operations are used that do the copying.
  @author Christoph Grimm, Carna Radojicic
  @return AADD that has additional levels.
  */
@@ -218,40 +233,15 @@ AADD& AADD::ITE(const BDD& c, const AADD& t, const AADD& f)
             return *this;
         }
     }
-
+    
     // otherwise, we need to create a new AADD.
-    // specific form of Shannon expansion is here: aadd = c*t + ic*f. 
-    AADD Temp, Temp2;
-
-    Temp.setRoot(Temp.BTimesA(c.getRoot(), t.getRoot() ) );
-    Temp2.setRoot(Temp.BTimesA((!c).getRoot(), f.getRoot()) );
-    setRoot(Temp.ApplyBinOp(Plus, Temp.getRoot(), Temp2.getRoot()));
-
+    // specific form of Shannon expansion is here: aadd = c*t + ic*f.
+    AADDNode *Temp, *Temp2;
+    Temp  = BTimesA(c.getRoot(), t.getRoot() );
+    Temp2 = BTimesA((!c).getRoot(), f.getRoot());
+    setRoot(ApplyBinOp(Plus, Temp, Temp2));
+    
     return (*this);
-}
-
-
-AADD& ITE(const BDD& c, const AAF& t, const AAF& f)
-{
-    if (c.getRoot()->isLeaf()) {
-        if ( c.getRoot()->getValue() == true ) {
-            AADD* result=new AADD(t);
-            return *result;
-        }
-        else {
-            AADD* result=new AADD(f);
-            return *result;
-        }
-    }
-    
-    AADD Temp, Temp2;
-    AADD * result = new AADD; 
-    
-    Temp.setRoot(Temp.BTimesA(c.getRoot(), new AADDNode(t) ) );
-    Temp2.setRoot(Temp.BTimesA((!c).getRoot(), new AADDNode(f)) );
-    result->setRoot(Temp.ApplyBinOp(Plus, Temp.getRoot(), Temp2.getRoot()));
-    
-    return (*result);
 }
 
 

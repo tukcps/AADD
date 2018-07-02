@@ -215,8 +215,8 @@ BDD::BDD(BDDNode* from)
      else 
          copy = new BDDNode( *right.getRoot() ); 
 
-     if (scopes().inCond() ){
-         ITE(scopes().blockCondition(), copy, *this);
+     if (bCond().inCond() ){
+         ITE(bCond().blockCondition(), copy, *this);
      }
      else {
           root->delete_tree();
@@ -242,8 +242,8 @@ BDD& BDD::operator=(const AADD& right)
     else
         copy = new BDDNode( *temp.getRoot() );
     
-    if (scopes().inCond() ){
-        ITE(scopes().blockCondition(), temp, *this);
+    if (bCond().inCond() ){
+        ITE(bCond().blockCondition(), temp, *this);
     }
     else {
         root->delete_tree();
@@ -270,8 +270,8 @@ BDD& BDD::operator=(bool right)
     else
         copy = ZERO();
     
-    if (scopes().inCond()){
-        ITE(scopes().blockCondition(), copy, *this);
+    if (bCond().inCond()){
+        ITE(bCond().blockCondition(), copy, *this);
     }
     else {
          root->delete_tree();
