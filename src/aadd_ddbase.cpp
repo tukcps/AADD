@@ -97,8 +97,9 @@ void DDNode<AAF>::delete_tree()
 template<>
 void DDBase<bool>::setRoot(DDNode<bool>* source)
 {
-    if(root != nullptr && root -> isNotShared() )
-        delete root; // for BDD.
+    if (root != nullptr)
+        if ( root -> isNotShared() )
+            delete root; // for BDD.
     
     root = source;
 }
