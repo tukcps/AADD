@@ -17,11 +17,9 @@ int main()
     c = a + b;  // 2 a = 4.
     d = c;      // c still there? ONE still there?
    
-    BDD bddtest; // BDD constructor.  
-    assert (bddtest == false);
+    BDD bddtest; // BDD constructor.
     bddtest = true; 
-    assert (bddtest == true);
-
+    
     AADD e(0);   // NULL still there? Mixed up with BDD leafs? 
     AADD f(1);   // ONE still there? 
     

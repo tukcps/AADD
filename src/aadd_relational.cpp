@@ -296,11 +296,13 @@ BDD& AADD::operator==(const AADD& right) const
 
     AADD diff=(*this)-right;
     vector<constraint<AAF> > cons;
-    BDD *r=new BDD(Compare(diff.getRoot(), 0, cons, "=="));
+    BDDNode *Temp, *Temp1;
+    Temp=Compare(diff.getRoot(), 0, cons, ">=");
+    Temp1=Compare(diff.getRoot(), 1e-10, cons, "<=");
+    BDD *r=new BDD;
+    r->setRoot(r->ApplyBinOp(And,Temp, Temp1));
     cons.clear();
-
     return (*r);
-    
 }
 
 /**
@@ -336,12 +338,12 @@ BDD& BDD::operator==(const BDD& right) const
 {
     // if two BDDs are equal (a xor b) will be 0
     // we need to do negation to get correct result
-    
+
     BDD *r=new BDD(((*this) xor right));
     
     return !(*r);
-
     
+   
 } // BDD::operator ==
 
 /**
@@ -355,60 +357,12 @@ BDD& BDD::operator==(const BDD& right) const
  @return true if two BDDs are not equal, otherwise false
  */
 
-
 BDD& BDD::operator!=(const BDD& right) const
 {
      // if two BDDs are not equal (a xor b) will be 1
     BDD *r=new BDD((*this) xor right);
-    
     return (*r);
     
 } // BDD::operator !=
-
-/**
- 
- @brief Relational operator ==
- 
- @details Compares BDD with Boolean value
- 
- @author Carna Radojicic, Christoph Grimm
- 
- @return true if BDD is a leaf node with the value equal to right,
- otherwise false
- 
- */
-
-bool BDD::operator==(const bool right) const
-{
-     if (!getRoot()->isLeaf()) // then r may get a value from {false, true}
-     {
-       return false;
-     }
-    
-     return (getRoot()->getValue()==right);
-    
-    
-} // BDD::operator ==
-
-/**
- 
- @brief Relational operator !=
- 
- @details Compares BDD with Boolean value
- 
- @author Carna Radojicic, Christoph Grimm
- 
- @return false if BDD is a leaf node with the value equal to right,
- otherwise true
-
- */
-
-
-bool BDD::operator!=(const bool right) const
-{
-    return !((*this)==right);
-    
-} // BDD::operator !=
-
 
 

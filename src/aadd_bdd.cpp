@@ -131,9 +131,8 @@ BDD::BDD(const BDD &from)
  */
 BDD::BDD(const AADD &from)
 {
-    
     BDD temp(from!=0);
-    
+
     if (temp.root->isLeaf())
     {
         // we have in BDD only two leaves, ONE and ZERO.
@@ -174,6 +173,8 @@ BDD::BDD(bool cst)
  */
 BDD::BDD(int cst)
 {
+    assert((cst==0) or (cst==1));
+    
     if (cst==1)
     {
         root=ONE();
@@ -182,6 +183,7 @@ BDD::BDD(int cst)
     {
         root=ZERO();
     }
+    
     assert(root != nullptr);
 }
 
@@ -200,6 +202,29 @@ BDD::BDD(BDDNode* from)
     assert(root != nullptr);
 }
 
+/**
+ @brief Assigment method. Copies an BDD parameter while considering block conditions.
+ @details Assigns an BDD right to this BDD
+ @author Carna Radojicic, Christoph Grimm
+ @return BDD this with result.
+ */
+BDD& BDD::assign(const BDD& right)
+{
+    BDDNode* copy;
+    if ( right.getRoot()->isShared() )
+        copy = right.getRoot();
+    else
+        copy = new BDDNode( *right.getRoot() );
+    
+    if (bCond().inCond() ){
+        ITE(bCond().blockCondition(), copy, *this);
+    }
+    else {
+        root->delete_tree();
+        root = copy;
+    }
+    return (*this);
+}
 
 /**
  @brief Assigment operator
@@ -209,79 +234,8 @@ BDD::BDD(BDDNode* from)
  */
  BDD& BDD::operator=(const BDD& right)
  {
-     BDDNode* copy; 
-     if ( right.getRoot()->isShared() ) 
-         copy = right.getRoot(); 
-     else 
-         copy = new BDDNode( *right.getRoot() ); 
-
-     if (bCond().inCond() ){
-         ITE(bCond().blockCondition(), copy, *this);
-     }
-     else {
-          root->delete_tree();
-          root = copy;
-     }
-     return (*this);
-}
-
-/**
- @brief Assigment operator
- @details Assigns AADD to BDD
- @author Carna Radojicic, Christoph Grimm
- @return BDD to be assigned
- */
-BDD& BDD::operator=(const AADD& right)
-{
-    
-    BDD temp(right!=0);
-    
-    BDDNode* copy;
-    if ( temp.getRoot()->isShared() )
-        copy = temp.getRoot();
-    else
-        copy = new BDDNode( *temp.getRoot() );
-    
-    if (bCond().inCond() ){
-        ITE(bCond().blockCondition(), temp, *this);
-    }
-    else {
-        root->delete_tree();
-        root = copy;
-    }
-    return (*this);
-
-    
-    
-}
-
-/**
- @brief Assigment operator
- @details Assigns bool to BDD
- @author Carna Radojicic, Christoph Grimm
- @return BDD to be assigned
- */
-BDD& BDD::operator=(bool right)
-{
-    BDDNode* copy;
-    
-    if (right==true)
-      copy = ONE();
-    else
-        copy = ZERO();
-    
-    if (bCond().inCond()){
-        ITE(bCond().blockCondition(), copy, *this);
-    }
-    else {
-         root->delete_tree();
-         root = copy;
-    }
-    return (*this);
-
-    
-}
-
+     return assign(right);
+ }
 
 // to allow use of BDD in conditional statements
 // this further allows operator == to work in existing simulators (e.g. SystemC)

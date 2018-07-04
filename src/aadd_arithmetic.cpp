@@ -314,7 +314,6 @@ AADDNode* AADD::ApplyUnaryOp(AADD_UOP op, AADDNode* f) const
     unsigned long index;
     
     res = (*op)(f);
-    assert(res != nullptr);
     if (res != nullptr) return(res);
     
     index = f->getIndex();
@@ -713,7 +712,7 @@ AADD& operator - (const BDD& cst, const AADD& P)
     AADD* Temp=new AADD(-P+cst);
     return (*Temp);
     
-}
+} 
 
 /**
  @brief Privated method called by binary operator %

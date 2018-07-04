@@ -14,36 +14,26 @@ int main()
     cout << condition;           // must be false
     cout << BDD(true);
     cout << BDD(false);
-    assert (condition == false);
- 
-    // comparison with 1 yields AADD and is neither true nor false.
-    assert ( !( (a > 1.0) == true) );
-    assert ( !( (a > 1.0) == false) );
-
+    
     // ITE statement executes then both true and false parts and generates
     // an AADD with two leaf nodes.
     BDD  con = (a>1.0);
     cout << "con=" << con;
     assert(con.numLeaves() == 2);
     
-    if (con == true) assert(false);
-    else if (con == false) assert(false);
-    else {
-        cout << a+10;
-        cout << a-10;
-        cout << con;
-        cout << !con;
-        a = a.ITE(con, a+10, a-10);
-        cout << a;
-    }
+    cout << a+10;
+    cout << a-10;
+    cout << con;
+    cout << !con;
+    a = a.ITE(con, a+10, a-10);
+    cout << a;
+    
     cout << "a: " << a;
     assert ( a.numLeaves() == 2 );
 
     BDD cd = (a<5.0);
     cout << cd;
-    if ( (cd == true ) ) assert(false);    // May not happen
-    else if ( (cd == false ) ) assert(false); // also not
-    else a=a.ITE(cd, 10, a+1);           // here ...
+    a=a.ITE(cd, 10, a+1);           // here ...
 
     AADD g(0.0); 
     AAF h(0,2); 

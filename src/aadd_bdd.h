@@ -76,8 +76,6 @@ public:
     // Comparison of BDD with bool.
     BDD& operator==(const BDD&) const;
     BDD& operator!=(const BDD&) const;
-    bool operator==(const bool) const;
-    bool operator!=(const bool) const;
     
     // Logical operators on BDD
     BDD& operator!() const;
@@ -87,9 +85,12 @@ public:
     
     BDD& operator or(const BDD&) const;
     BDD& operator xor(const BDD& g) const;
+    
+    // assignment method -- called by op =
+    BDD& assign(const BDD&);
+    
+    // assignment operators
     BDD& operator=(const BDD&);
-    BDD& operator=(const AADD&);
-    BDD& operator=(bool);
 
   #pragma clang diagnostic push
   #pragma clang diagnostic ignored "-Wc++11-extensions"

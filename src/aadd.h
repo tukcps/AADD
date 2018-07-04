@@ -183,10 +183,11 @@ AADD& operator / (const AAF&, const AADD&);
 AADD& operator + (const AAF&, const AADD&);
 AADD& operator - (const AAF&, const AADD&);
 
+
 AADD& operator * (const BDD&, const AADD&);
 AADD& operator / (const BDD&, const AADD&);
 AADD& operator + (const BDD&, const AADD&);
-AADD& operator - (const BDD&, const AADD&); 
+AADD& operator - (const BDD&, const AADD&);
 
 // Operations on AADDNodes for internal use:
 AADDNode* Times(AADDNode*, AADDNode*);

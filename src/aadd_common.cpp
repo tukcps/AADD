@@ -147,16 +147,12 @@ AADD::AADD(const BDD &from)
                 root=new AADDNode(0);
         }
     }
-        
-    // otherwise, we need to create a new AADD
-    // using Shannon expansion: aadd = c*t + ic*f.
-    AADDNode* Temp=new AADDNode(1);
-    AADDNode* Temp1=new AADDNode(0);
-        
-    Temp=BTimesA(from.getRoot(), Temp);
-    Temp1=BTimesA((!from).getRoot(), Temp1);
-    setRoot(ApplyBinOp(Plus, Temp, Temp1));
+    else
+    {
+     root=BTimesA(from.getRoot(), new AADDNode(1));
+    }
     
+
 }
 
 /**
