@@ -147,12 +147,15 @@ class AADD: public DDBase<AAF>
     double GetMin() const;
     double GetMax() const;
     opt_sol GetBothBounds() const;
+    vector<opt_sol> GetAllBounds() const;
+    vector<AAF> getConds() const;
+    void printConds() const;
 
     // printing AADD to stream s, default is cout
     void print(std::ostream & s=std::cout) const;
 
-    // writing AADD to the file format recognised by graph drawing program Graphviz
-    int printaadd(string file_name) const;
+    // printing AADD to the file format recognised by graph drawing program Graphviz
+    int printf(string file_name) const;
     
   protected:
     // Called by relational operators
@@ -162,7 +165,7 @@ class AADD: public DDBase<AAF>
     AADDNode* Modulo(AADDNode*, int) const;
     
    // Method that computes tight bounds of leafs of AAF by setting up an LP problem. Calls GLPK for solving it.
-    opt_sol FindBounds(AADDNode*,  vector<constraint<AAF> >) const;
+     vector<opt_sol> FindBounds(AADDNode*,  vector<constraint<AAF> >cons=vector<constraint<AAF> >(), vector<opt_sol> res=vector<opt_sol >()) const;
 };
 
 

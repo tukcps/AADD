@@ -113,6 +113,42 @@ void DDBase<AAF>::setRoot(DDNode<AAF>* source)
     root = source;
 }
 
+template<>
+vector<AAF> DDNode<bool>::getConds() const
+{
+    static vector<AAF> res;
+    
+    if (!(isLeaf()))
+    {
+        AAF cond=getCond();
+        res.push_back(cond);
+        getT()->getConds();
+        getF()->getConds();
+    }
+    
+    return res;
+    
+}
+
+
+template<>
+vector<AAF> DDNode<AAF>::getConds() const
+{
+    static vector<AAF> res;
+    
+    if (!isLeaf())
+    {
+        AAF cond=getCond();
+        res.push_back(cond);
+        getT()->getConds();
+        getF()->getConds();
+    }
+    
+    return res;
+    
+}
+
+
 
 template<>
 int DDBase<AAF>::printFile(FILE* fp, const DDNode<AAF>* node) const

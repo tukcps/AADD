@@ -48,17 +48,15 @@
 
 
 /**
- @brief Private Method of AADD that finds total lower and upper bounds
+ @brief Private Method of AADD that finds bounds of AAFs in AADD's leaves
  @details Method is called by GetMin(), GetMax() and GetBothBounds()
  @author Carna Radojicic
- @return optimal solution including lower and upper bounds
+ @return vector of optimal solutions including lower and upper bounds
  @see GetMin(), GetMax() and GetBothBounds()
  */
-opt_sol AADD::FindBounds(AADDNode* f, vector<constraint<AAF> > constraints) const
+vector<opt_sol> AADD::FindBounds(AADDNode* f, vector<constraint<AAF> > constraints, vector<opt_sol> res) const
 {
-    opt_sol res;
-    opt_sol resT, resE;
-    
+
     constraint<AAF> cons;
     
     AADDNode *fv, *fvn;
@@ -66,9 +64,7 @@ opt_sol AADD::FindBounds(AADDNode* f, vector<constraint<AAF> > constraints) cons
     if (f->isLeaf() ) {
         
         opt_sol bounds=solve_lp(f->getValue(), constraints);
-        
-        res.min=bounds.min;
-        res.max=bounds.max;
+        res.push_back(bounds);
         return res;
     }
     
@@ -82,30 +78,11 @@ opt_sol AADD::FindBounds(AADDNode* f, vector<constraint<AAF> > constraints) cons
     
     constraints.push_back(cons);
     
-    resT=FindBounds(fv,constraints);
+    res=FindBounds(fv,constraints, res);
     
     constraints.back().sign='-';
     
-    resE=FindBounds(fvn,constraints);
-    
-    if (resT.min<resE.min)
-    {
-        res.min=resT.min;
-    }
-    else
-    {
-        res.min=resE.min;
-    }
-    
-    
-    if (resT.max>resE.max)
-    {
-        res.max=resT.max;
-    }
-    else
-    {
-        res.max=resE.max;
-    }
+    res=FindBounds(fvn,constraints, res);
     
     return res;
     
@@ -123,15 +100,20 @@ opt_sol AADD::FindBounds(AADDNode* f, vector<constraint<AAF> > constraints) cons
  */
 double AADD::GetMin() const
 {
-    vector<constraint<AAF> > constraints;
-    opt_sol bounds;
-    bounds = FindBounds(getRoot(), constraints);
+  //  vector<constraint<AAF> > constraints;
+    vector<opt_sol> bounds= FindBounds(getRoot());
+    double min=bounds.front().min;
+    
+    for (unsigned i=1; i<bounds.size(); i++){
+        if (bounds[i].min<min) min=bounds[i].min;
+    }
+    
     
 #ifdef AADD_DEBUG
-    cout << "Total lower bound is: " << bounds.min << endl;
+    cout << "Total lower bound is: " << min << endl;
 #endif
     
-    return bounds.min;
+    return min;
     
     
 } // AADD::GetMin
@@ -143,14 +125,18 @@ double AADD::GetMin() const
  */
 double AADD::GetMax() const
 {
-    vector<constraint<AAF> > constraints;
-    opt_sol bounds;
-    bounds = FindBounds(getRoot(), constraints);
+   // vector<constraint<AAF> > constraints;
+    vector<opt_sol> bounds = FindBounds(getRoot());
+    double max=bounds.front().max;
+    
+    for (unsigned i=1; i<bounds.size(); i++){
+        if (bounds[i].max>max) max=bounds[i].max;
+    }
     
 #ifdef AADD_DEBUG
-    cout << "Total upper bound is: " << bounds.max << endl;
+    cout << "Total upper bound is: " << max << endl;
 #endif
-    return bounds.max;
+    return max;
 } // AADD::GetMax
 
 /**
@@ -160,18 +146,40 @@ double AADD::GetMax() const
  */
 opt_sol AADD::GetBothBounds() const
 {
-    vector<constraint<AAF> > constraints;
-    opt_sol bounds;
-    bounds =  FindBounds(getRoot(), constraints);
+    vector<opt_sol> bounds= FindBounds(getRoot());;
+    opt_sol res;
+    res.min=bounds.front().min;
+    res.max=bounds.front().max;
+    
+    for (unsigned i=1; i<bounds.size(); i++){
+        if (bounds[i].min<res.min) res.min=bounds[i].min;
+        if (bounds[i].max>res.max) res.max=bounds[i].max;
+    }
     
 #ifdef AADD_DEBUG
-    cout << "Total lower bound is: " << bounds.min << endl;
-    cout << "Total upper bound is: " << bounds.max << endl;
+    cout << "Total lower bound is: " << res.min << endl;
+    cout << "Total upper bound is: " << res.max << endl;
+#endif
+    
+    return res;
+} // AADD::GetBothBounds
+
+/**
+ @brief Method that finds bounds of all leaf nodes
+ @author Carna Radojicic
+ @return vector of lower and upper bounds
+ */
+vector<opt_sol> AADD::GetAllBounds() const
+{
+    vector<opt_sol> bounds= FindBounds(getRoot());
+    
+#ifdef AADD_DEBUG
+    for (unsigned i=0; i<bounds.size(); i++)
+        cout << "Bounds of leaf node " << i << ": " << bounds[i].min << " " << bounds[i].max << endl;
 #endif
     
     return bounds;
-} // AADD::GetBothBounds
-
+} // AADD::GetAllBounds
 
 
 
@@ -290,11 +298,11 @@ opt_sol solve_lp(const AAF& var1, vector<constraint<AAF> > constraints)
                 {
                     if (constraints[j].sign=='-')
                     {
-                        ar[ind]=con.getcenter()+con.offset_max;
+                        ar[ind]=con.getcenter()+con.offset_min;
                     }
                     else
                     {
-                        ar[ind]=con.getcenter()+con.offset_min;
+                        ar[ind]=con.getcenter()+con.offset_max;
                     }
                 }
                 else

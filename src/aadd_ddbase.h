@@ -73,6 +73,7 @@ public:
     void setValue(const ValueT& v)  { value = v; }; 
     
     AAF& getCond() const             { return condMgr().getCond(index); };
+    vector<AAF> getConds() const;
     
     unsigned long getIndex()        const { return index; };
     void setIndex(unsigned long i)  { index = i;};

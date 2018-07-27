@@ -261,6 +261,32 @@ void AADD::print(std::ostream & s) const
     getRoot()->print("", s);
 }
 
+/**
+ @brief Public method for getting conditions of AADD's intermediate nodes
+ @author Carna Radojicic
+ @return vector of AAF forms x in conditions in form x>0
+ */
+vector<AAF> AADD::getConds() const{
+    
+    return getRoot()->getConds();
+}
+
+/**
+ @brief Public method for printing conditions of AADD's intermediate nodes
+ @author Carna Zivkovic, born Radojicic
+ */
+void AADD::printConds() const{
+    
+    vector<AAF> conds=getConds();
+    
+    cout << "Conditions of this AADD are: " << endl;
+    
+    for (unsigned i=0; i<conds.size(); i++)
+    {
+        cout << conds[i] << endl;
+    }
+    
+}
 
 std::ostream & operator << (std::ostream & s, const AADD& f)
 {
@@ -290,6 +316,55 @@ void AADDNode::print(const string& indent, std::ostream & s) const
         getF()->print(indent, s);
         s << endl;
     }
+}
+
+int AADD::printf(string file_name) const
+{
+    
+    int retval;
+    
+    FILE* fp;
+    string tmp=file_name+".dot";
+    const char *name=tmp.c_str();
+    
+    fp=fopen(name,"w"); // open file for writing
+    
+    
+    /* Write the header and the global attributes. */
+    retval = fprintf(fp,"digraph \"AADD\" {\n");
+    if (retval == EOF)
+    {
+        
+        cout << "END of FILE!" << endl;
+        return(1);
+    }
+    
+    
+    retval = fprintf(fp,
+                     "size = \"20,20\"\n center = true;\n edge [dir = nONE];\n");
+    if (retval == EOF)
+    {
+        cout << "END of FILE!" << endl;
+        return(1);
+    }
+    
+    retval=printFile(fp, getRoot());
+    
+    if (retval==0)
+    {
+        
+        retval=fprintf(fp,"}\n");
+        if (retval == EOF)
+        {
+            cout << "END of FILE!" << endl;
+            return(1);
+        }
+    }
+    
+    fclose(fp);
+    return retval;
+    
+    
 }
 
 

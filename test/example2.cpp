@@ -22,7 +22,13 @@ int main()
     } endS
  
     cout << endl << "After loop, a is: " << endl;
-    cout << a; 
+    cout << a;
+    // Print conditions of a
+    a.printConds();
+    // Get Conditions of a
+    vector<AAF> conds=a.getConds();
+    // print a in a.dot file that can be visualised by Graphviz package
+    a.printf("a");
     cout << endl << "After loop, b is: " << endl << b; 
     // a leaves now have different representations of 10. 
 }
