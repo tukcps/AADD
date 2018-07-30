@@ -217,7 +217,8 @@ int DDBase<AAF>::printFile(FILE* fp, const DDNode<AAF>* node) const
       else
       {
           
-          retval=fprintf(fp, "\"%p\" [label= \"v%lu\"];\n", (void *) node, node->getIndex());
+          unsigned long ind=node->getIndex();
+          retval=fprintf(fp, "\"%p\" [label= \"v%lu: ", (void *) node, ind);
           
           if (retval == EOF)
           {
@@ -225,7 +226,47 @@ int DDBase<AAF>::printFile(FILE* fp, const DDNode<AAF>* node) const
               return(1);
           }
           
-
+          AAF val=node->getCond();
+          
+          retval=fprintf(fp,  "%g", val.getcenter());
+          
+          
+          if (retval == EOF)
+          {
+              cout << "END of FILE!" << endl;
+              return(1);
+          }
+          
+          for (unsigned i=0; i<val.getlength(); i++)
+          {
+              
+              if (val[i+1]>=0)
+              {
+                  retval=fprintf(fp, "+");
+                  
+                  if (retval == EOF)
+                  {
+                      cout << "END of FILE!" << endl;
+                      return(1);
+                  }
+              }
+              
+              retval=fprintf(fp, "%g*e%u", val[i+1], val.getIndexes()[i]);
+              
+              if (retval == EOF)
+              {
+                  cout << "END of FILE!" << endl;
+                  return(1);
+              }
+          }
+          
+          if (val.offset_min!=0 or val.offset_max!=0)
+          {
+              retval=fprintf(fp, "+[%g, %g]", val.offset_min, val.offset_max);
+              
+          }
+          retval=fprintf(fp,">0\"];\n");
+          
           retval = fprintf(fp,
                            "\"%p\" -> \"%p\" [style = solid];\n",
                            (void *) node, (void *) node->getT());
@@ -235,6 +276,7 @@ int DDBase<AAF>::printFile(FILE* fp, const DDNode<AAF>* node) const
               cout << "END of FILE!" << endl;
               return(1);
           }
+          
           
           retval = fprintf(fp,
                            "\"%p\" -> \"%p\" [style = dashed];\n",
