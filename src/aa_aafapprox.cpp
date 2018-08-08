@@ -94,15 +94,15 @@ AAF & AAF::operator *=(const AAF & P)
   {
     // if *this is double
     double temp = cvalue;
-    *this = P;
-    *this *= temp;
-    return *this;
+    (*this) = P;
+    (*this) *= temp;
+    return (*this);
   }
   if (l2 == 0)
   {
     // if P is double
-    *this *= P.cvalue;
-    return *this;
+    (*this) *= P.cvalue;
+    return (*this);
   }
 
   unsigned * id1 = indexes;
@@ -137,7 +137,7 @@ AAF & AAF::operator *=(const AAF & P)
   min2=P.cvalue;
   max2=P.cvalue; 
   
-  double min_, max_;
+  double min, max;
 
   // Fill the deviations array
 
@@ -187,10 +187,8 @@ AAF & AAF::operator *=(const AAF & P)
     }
     
     vatempg[i] = cvalue*va2[b] + (P.cvalue)*va1[a];
-   // commonTermCenter += va2[b]*va1[a];
-   // commonTermDeviation += fabs(va2[b]*va1[a]);
-   
-   if ( vatempg[i]<0)
+
+    if ( vatempg[i]<0)
     {
       min1+=va1[a];
       max1-=va1[a];
@@ -213,50 +211,40 @@ AAF & AAF::operator *=(const AAF & P)
     pu1++;
     pu2++;
   }
+    
+    // add offsets of (*this) and P
 
-  // Compute the error in a new deviation symbol
- // double delta = rad()*P.rad();
-
-  // multiply cvalue
-  
-     if (min1>max1)
-     {
+    if (min1>max1)
+    {
         min1+=offset_max;
         max1+=offset_min;
         
-     }
-     else
-     {
+    }
+    else
+    {
         min1+=offset_min;
         max1+=offset_max;
-     }
-     
-     if (min2>max2)
-     {
+    }
+    
+    if (min2>max2)
+    {
         min2+=P.offset_max;
         max2+=P.offset_min;
-     }
-     else
-     {
+    }
+    else
+    {
         min2+=P.offset_min;
         max2+=P.offset_max;
-     }
-     
-     min_=min1*min2;
-     max_=max1*max2;
+    }
+    
+    min=min1*min2;
+    max=max1*max2;
     
   offset_min=0;
   offset_max=0;
   
   cvalue *= P.cvalue;
 
-   // tempDeviations[ltemp] = delta;
-    // consider deviations occuring in both expressions  
-  
-   
-   // cvalue += commonTermCenter;
-   // tempDeviations[ltemp] -= commonTermDeviation;
-                                                 
   length = ltemp;
   size = length;
 
@@ -272,8 +260,13 @@ AAF & AAF::operator *=(const AAF & P)
     radius += fabs(deviations[i]);
 #endif
 
-  offset_min=minimum(min_,getMin())-getMin();
-  offset_max=maximum(max_,getMax())-getMax();
+  if (AAF::approximationType == INTERVAL_EXACT){
+   offset_min=min-getMin();
+   offset_max=max-getMax();}
+  else{
+  offset_min=minimum(min,getMin())-getMin();
+  offset_max=maximum(max,getMax())-getMax();}
+ 
   return (*this);    
 }
 
@@ -335,9 +328,6 @@ AAF AAF::operator * (const AAF & P) const
   Temp.deviations = new double [ltemp];
   double * vatempg = Temp.deviations;
   
-  //double commonTermCenter = 0.0;
-  //double commonTermDeviation = 0.0;
-  
   double min1, max1;
   double min2, max2;
 
@@ -347,7 +337,7 @@ AAF AAF::operator * (const AAF & P) const
   min2=P.cvalue;
   max2=P.cvalue; 
   
-  double min_, max_;
+  double min, max;
 
   // Fill the deviations array
 
@@ -397,14 +387,12 @@ AAF AAF::operator * (const AAF & P) const
     }
     
     vatempg[i] = cvalue*va2[b] + (P.cvalue)*va1[a];
-   // commonTermCenter += va2[b]*va1[a];
-   // commonTermDeviation += fabs(va2[b]*va1[a]);
-   
-   if ( vatempg[i]<0)
+      
+    if ( vatempg[i]<0)
     {
       min1+=va1[a];
       max1-=va1[a];
-      
+        
       min2+=va2[b];
       max2-=va2[b];
     
@@ -424,46 +412,37 @@ AAF AAF::operator * (const AAF & P) const
     pu2++;
   }
 
-  // Compute the error in a new deviation symbol
- // double delta = rad()*P.rad();
-
-  // multiply cvalue
-  
-     if (min1>max1)
-     {
+    // add offsets of (*this) and P
+    
+    if (min1>max1)
+    {
         min1+=offset_max;
         max1+=offset_min;
         
-     }
-     else
-     {
+    }
+    else
+    {
         min1+=offset_min;
         max1+=offset_max;
-     }
-     
-     if (min2>max2)
-     {
+    }
+    
+    if (min2>max2)
+    {
         min2+=P.offset_max;
         max2+=P.offset_min;
-     }
-     else
-     {
+    }
+    else
+    {
         min2+=P.offset_min;
         max2+=P.offset_max;
-     }
-     
-     min_=min1*min2;
-     max_=max1*max2;
+    }
     
-   // tempDeviations[ltemp] = delta;
-    // consider deviations occuring in both expressions  
-  
-   
-   // cvalue += commonTermCenter;
-   // tempDeviations[ltemp] -= commonTermDeviation;
-                                                 
-  Temp.length = ltemp;
-  Temp.size = ltemp;
+    
+     min=min1*min2;
+     max=max1*max2;
+    
+    Temp.length = ltemp;
+    Temp.size = ltemp;
 
 #ifdef FAST_RAD
   Temp.radius = 0.0;
@@ -471,10 +450,13 @@ AAF AAF::operator * (const AAF & P) const
     Temp.radius += fabs(Temp.deviations[i]);
 #endif
    
-        
-    Temp.offset_min=minimum(min_, Temp.getMin())-Temp.getMin();
-    Temp.offset_max=maximum(max_, Temp.getMax())-Temp.getMax();
-
+  if (AAF::approximationType == INTERVAL_EXACT){
+    Temp.offset_min=min-Temp.getMin();
+    Temp.offset_max=max-Temp.getMax();
+  }else{
+    Temp.offset_min=minimum(min, Temp.getMin())-Temp.getMin();
+    Temp.offset_max=maximum(max, Temp.getMax())-Temp.getMax();}
+    
     return Temp;
 
 }
@@ -582,6 +564,7 @@ AAF & AAF::operator /= (const AAF & P)
          fb2+=var2[b];
       }
       
+      pu2++;
       continue;
     }
     
@@ -599,6 +582,7 @@ AAF & AAF::operator /= (const AAF & P)
          fb1+=var1[a];
       }
       
+      pu1++;
       continue;
     }
     
@@ -631,42 +615,48 @@ AAF & AAF::operator /= (const AAF & P)
     pu2++;
    
    }
+        
+    if (fb1>fa1)
+    {
+        fb1+=offset_max;
+        fa1+=offset_min;
+    }
+    else
+    {
+        fb1+=offset_min;
+        fa1+=offset_max;
+    }
+        
+    if (fb2>fa2)
+    {
+        fb2+=P.offset_max;
+        fa2+=P.offset_min;
+    }
+    else
+    {
+        fb2+=P.offset_min;
+        fa2+=P.offset_max;
+    }
+
    
-       if (fb1>fa1)
-       {
-         fb1+=offset_max;
-         fa1+=offset_min; 
-       }
-       else
-       {
-         fb1+=offset_min;
-         fa1+=offset_max; 
-       }
        
-       if (fb2>fa2)
-       {
-         fb2+=P.offset_max;
-         fa2+=P.offset_min; 
-       }
-       else
-       {
-         fb2+=P.offset_min;
-         fa2+=P.offset_max; 
-       }
-       
-       fa=fa1/fa2;
-       fb=fb1/fb2;
+    fa=fa1/fa2; // min
+    fb=fb1/fb2; // max
    
    
-    
     #ifdef FAST_RAD
     Temp.radius = 0.0;
     for (unsigned i = 0; i < Temp.length; i++)
     Temp.radius += fabs(Temp.deviations[i]);
     #endif
-    
+        
+        
+   if (AAF::approximationType == INTERVAL_EXACT){
+    Temp.offset_min=fb-Temp.getMin();
+    Temp.offset_max=fa-Temp.getMax();}
+   else{
     Temp.offset_min=minimum(fb, Temp.getMin())-Temp.getMin();
-    Temp.offset_max=maximum(fa,Temp.getMax())-Temp.getMax();
+    Temp.offset_max=maximum(fa,Temp.getMax())-Temp.getMax();}
 
     (*this)=Temp;
   }
@@ -766,6 +756,7 @@ AAF AAF::operator / (const AAF & P) const
          fb2+=var2[b];
       }
       
+      pu2++;
       continue;
     }
     
@@ -783,12 +774,13 @@ AAF AAF::operator / (const AAF & P) const
          fb1+=var1[a];
       }
       
+      pu1++;
       continue;
     }
     
-      if (vatempg[i]>0)
-      {
-      
+    if (vatempg[i]>0)
+    {
+
         fa2+=var2[b];
         fb2-=var2[b];
         
@@ -798,60 +790,65 @@ AAF AAF::operator / (const AAF & P) const
         
       
       }
-      else
-      {
+    else
+    {
     
-         fa2-=var2[b];
-         fb2+=var2[b];
+        fa2-=var2[b];
+        fb2+=var2[b];
          
-         fa1-=var1[a];
-         fb1+=var1[a];
+        fa1-=var1[a];
+        fb1+=var1[a];
           
         
-      }
+    }
     
-      
     pu1++;
     pu2++;
    
    }
    
-       if (fb1>fa1)
-       {
-         fb1+=offset_max;
-         fa1+=offset_min; 
-       }
-       else
-       {
-         fb1+=offset_min;
-         fa1+=offset_max; 
-       }
+    if (fb1>fa1)
+    {
+        fb1+=offset_max;
+        fa1+=offset_min;
+    }
+    else
+    {
+        fb1+=offset_min;
+        fa1+=offset_max;
+    }
+        
+    if (fb2>fa2)
+    {
+        fb2+=P.offset_max;
+        fa2+=P.offset_min;
+    }
+    else
+    {
+        fb2+=P.offset_min;
+        fa2+=P.offset_max;
+    }
+        
        
-       if (fb2>fa2)
-       {
-         fb2+=P.offset_max;
-         fa2+=P.offset_min; 
-       }
-       else
-       {
-         fb2+=P.offset_min;
-         fa2+=P.offset_max; 
-       }
        
-       fa=fa1/fa2;
-       fb=fb1/fb2;
-   
-   
+    fa=fa1/fa2;
+    fb=fb1/fb2;
+        
     
     #ifdef FAST_RAD
     Temp.radius = 0.0;
     for (unsigned i = 0; i < Temp.length; i++)
     Temp.radius += fabs(Temp.deviations[i]);
     #endif
-    
+        
+   if (AAF::approximationType == INTERVAL_EXACT){
+    Temp.offset_min=fb-Temp.getMin();
+    Temp.offset_max=fa-Temp.getMax();}
+   else{
     Temp.offset_min=minimum(fb, Temp.getMin())-Temp.getMin();
-    Temp.offset_max=maximum(fa,Temp.getMax())-Temp.getMax();
-
+    Temp.offset_max=maximum(fa,Temp.getMax())-Temp.getMax();}
+        
+   
     return Temp;
      
   }
@@ -1368,7 +1365,7 @@ AAF inv(const AAF & P)
   Temp.deviations = new double [Temp.size];
   Temp.indexes = new unsigned [Temp.size];
   
-  for (unsigned i = 0; i < P.length; i++)
+  for (unsigned i = 0; i < Temp.length; i++)
   {
     Temp.indexes[i] = P.indexes[i];
     Temp.deviations[i] = alpha*(P.deviations[i]);
@@ -1378,98 +1375,14 @@ AAF inv(const AAF & P)
   Temp.radius = fabs(alpha) * P.radius;
  #endif
     
-  Temp.offset_min=fb-Temp.cvalue+Temp.rad();
-  Temp.offset_max=fa-Temp.cvalue-Temp.rad();
+ if (AAF::approximationType == INTERVAL_EXACT){
+   Temp.offset_min=fb-Temp.getMin();
+   Temp.offset_max=fa-Temp.getMax();
+ }
+ else{
+  Temp.offset_min=minimum(fb, Temp.getMin())-Temp.getMin();
+  Temp.offset_max=maximum(fa, Temp.getMax())-Temp.getMax();}
    
- /* if (AAF::approximationType == CHEBYSHEV)
-  {
-    alpha = -fa*fb;    
-    double u = sqrt(a*b);
-
-    if (a > 0)
-    {
-      delta = +0.5*(fa+fb-2.0/u);
-      dzeta = fa+fb-delta;
-    }
-    else
-    {
-      delta = -0.5*(fa+fb+2.0/u);
-      dzeta = fa+fb+delta;
-    }
-    
-#ifdef AAF_DEBUG
-    fprintf(stdout, "Function: inv(x)\n");
-    fprintf(stdout, "Interval: [%f, %f]\n", a, b);
-    fprintf(stdout, "f(Interval): [%f, %f]\n", fa, fb);
-    fprintf(stdout, "x_1: %f, f(x_1): %f\n", u, 1.0/u);
-    fprintf(stdout, "alpha: %f, delta: %f, dzeta: %f\n", alpha, delta, dzeta);
-#endif
-  }
-  else if (AAF::approximationType == MINRANGE)
-  {
-    double y_a, y_b;
-    // Derivative of 1/x is -1/x*x
-    if (a > 0.0)
-    {
-      alpha = -fb/b;
-      // y_a = fa - alpha*a;
-      // y_b = fb - alpha*b = 2.0*fb;
-      y_a = fa - alpha*a;
-      y_b = 2.0*fb;     
-    }
-    else
-    {
-      alpha = -fa/a;
-      // y_a = fa - alpha*a = 2.0*fa;
-      // y_b = fb - alpha*b;
-      y_a = 2.0*fa;
-      y_b = fb - alpha*b;
-    }
-
-    delta = 0.5*(y_a - y_b);
-    dzeta = 0.5*(y_a + y_b);
-  }
-  else // (AAF::approximationType == SECANT)
-  {
-    if (r > AAF_MINRAD)
-    {
-      alpha = (fb-fa)/(b-a);
-    }
-    else
-    {
-      alpha = -fa*fb;
-    }
-    dzeta = fa - alpha*a;
-    delta = 0.;
-  }
-  // z0 = alpha*x0 + dzeta
-
-  AAF Temp(alpha*(P.cvalue) + dzeta);
-
-  Temp.length = P.length + 1;
-  Temp.size = Temp.length;
-  Temp.deviations = new double [Temp.size];
-  Temp.indexes = new unsigned [Temp.size];
-
-  // zi = alpha*xi
-
-  for (unsigned i = 0; i < P.length; i++)
-  {
-    Temp.indexes[i] = P.indexes[i];
-    Temp.deviations[i] = alpha*(P.deviations[i]);
-  }  
-  
-  // Compute the error in a new deviation symbol
-  // zk = delta
-  Temp.indexes[P.length] = Temp.inclast();
-  Temp.deviations[P.length] = delta;
-
-#ifdef FAST_RAD
-  Temp.radius = fabs(alpha) * P.radius + fabs(delta);
-#endif
-
-*/
-
   return Temp;
 }
 
