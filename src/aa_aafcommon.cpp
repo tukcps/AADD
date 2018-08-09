@@ -36,7 +36,7 @@
 // defualt starting index for deviations
 unsigned AAF::last = 0;
 // default approximation type
-tApproximationType AAF::approximationType = CHEBYSHEV;
+tApproximationType AAF::approximationType = INTERVAL_EXACT;
 
 //#define CLEANUP_DEBUG
 

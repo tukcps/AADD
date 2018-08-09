@@ -38,7 +38,7 @@
 #include <stdexcept>
 
 
-typedef enum {MINRANGE, CHEBYSHEV, SECANT} tApproximationType;
+typedef enum {MINRANGE, CHEBYSHEV, SECANT, INTERVAL_EXACT} tApproximationType;
 
 using namespace std;
 
