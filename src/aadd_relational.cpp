@@ -185,7 +185,7 @@ BDDNode* AADD::Compare(AADDNode* f,
 
 BDD& AADD::operator<=(const AADD& right) const
 {
-    AADD temp=(*this)-right;
+    AADD temp((*this)-right);
     vector<constraint<AAF> > cons;
     double ths=0+1e-10;
     
@@ -214,7 +214,7 @@ BDD& AADD::operator<=(const AADD& right) const
 
 BDD& AADD::operator<( const AADD& right) const
 {
-    AADD diff=(*this)-right;
+    AADD diff((*this)-right);
     vector<constraint<AAF> > cons;
     BDD* r=new BDD;
     r->setRoot(Compare(diff.getRoot(), 0, cons, "<"));
@@ -241,7 +241,7 @@ BDD& AADD::operator<( const AADD& right) const
 
 BDD& AADD::operator >= (const AADD& right) const
 {
-    AADD temp=(*this)-right;
+    AADD temp((*this)-right);
     vector<constraint<AAF> > cons;
     
     BDD* r=new BDD;
@@ -268,7 +268,7 @@ BDD& AADD::operator >= (const AADD& right) const
 
 BDD& AADD::operator>(const AADD& right) const
 {
-    AADD temp=(*this)-right;
+    AADD temp((*this)-right);
     vector<constraint<AAF> > cons;
     
     double ths=0+1e-10;
@@ -294,7 +294,7 @@ BDD& AADD::operator>(const AADD& right) const
 BDD& AADD::operator==(const AADD& right) const
 {
 
-    AADD diff=(*this)-right;
+    AADD diff((*this)-right);
     vector<constraint<AAF> > cons;
     BDDNode *Temp, *Temp1;
     Temp=Compare(diff.getRoot(), 0, cons, ">=");
