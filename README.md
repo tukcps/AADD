@@ -4,7 +4,7 @@ This permits in particular the abstract symbolic interpretation of C++.
 It can also be used for symbolic simulation of SystemC or SystemC AMS/TLM models which requires in addition installation of the SystemC library.
 
 ## Usage
-Using AADD as simple as: 
+Using AADD is as simple as: 
 
 ```
 	#include "aadd.h"
@@ -17,7 +17,7 @@ Using AADD as simple as:
     	  a = doubleS(0,100); // a takes double value from range [0,100]
 	  ifS(a > 1)          // symbolic cond. and iteration statements
 	    a = a + 2;
-      elseS
+          elseS
 	    a = a - 2;
 	  endS;
 	  
