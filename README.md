@@ -1,4 +1,10 @@
 # Affine Arithmetic Decition Diagrams (AADD) 
+
+> Consider migrating to the Multiplatform Version of the AADD library.
+> It has much more features e.g. consideratin of FP traps, roundoff errors, multi-threaded solving, etc. 
+> It can be found in the following repository https://github.com/tukcps/Multiplatform-AADD
+
+
 This software provides  a C++ library for the creation and manipulation of affine arithmetic decision diagrams (AADD).
 This permits in particular the abstract symbolic interpretation of C++. 
 It can also be used for symbolic simulation of SystemC or SystemC AMS/TLM models which requires in addition installation of the SystemC library.
