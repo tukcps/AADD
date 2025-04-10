@@ -81,6 +81,9 @@ Else, send an email to the authors.
 ## Migration
 Consider migrating to the Multiplatform Version of the AADD library. It has many more features as well as new support. It can be found in the following repository https://github.com/tukcps/Multiplatform-AADD
 
+As an example on what one can do with AADD (Multiplatform-AADD), take a look at SysMD, a SysML v2 tool.
+https://github.com/tukcps/SysMD
+
 
 In case of problems or other feedback contact:
 
